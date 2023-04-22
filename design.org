@@ -1,0 +1,4 @@
+#+title: Design
+
+* Viscera ideas
+** Ascii characters fly off into pieces when killed
