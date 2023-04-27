@@ -25,6 +25,8 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
 
 [node name="N" type="RayCast2D" parent="."]
 target_position = Vector2(0, -32)

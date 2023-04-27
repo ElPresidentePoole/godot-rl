@@ -7,3 +7,5 @@
 script = ExtResource("1_y36ka")
 
 [node name="CellMap" parent="." instance=ExtResource("2_imety")]
+
+[node name="Mobs" type="Node" parent="."]

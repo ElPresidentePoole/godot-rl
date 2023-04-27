@@ -4,6 +4,8 @@ class_name CellMap
 
 # signal map_generated
 
+var map_width: int = 60
+var map_height: int = 60
 var astar: AStar2D = AStar2D.new()
 var id_table: Dictionary = {} # Vector2 -> int
 var node_table: Dictionary = {} # Vector2 (position) -> Node2D
@@ -11,6 +13,12 @@ var root: Chunk = null
 #var occupied: Array[Vector2]
 const CELL_SIZE: Vector2 = Vector2(32, 32)
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
+
+func world_pos_to_cell(pos: Vector2) -> Vector2:
+	return Vector2(pos.x / CELL_SIZE.x, pos.y / CELL_SIZE.y)
+
+func cell_pos_to_world(pos: Vector2) -> Vector2:
+	return Vector2(pos.x * CELL_SIZE.x, pos.y * CELL_SIZE.y)
 
 #func is_occupied(pos: Vector2) -> bool:
 	#assert(pos in id_table) # Sanity check to make sure a position is in our valid cells
@@ -176,7 +184,7 @@ class Chunk: # this should probably be called BinaryNode or Chunk or something e
 		if _rect.size.x <= MINIMUM_WIDTH or _rect.size.y <= MINIMUM_HEIGHT:
 			print_debug('chunk with _rect of %s too small to generate a room in!' % [_rect])
 			return # don't bother, this chunk is too small
-		var room_color: Color = Color(randf(), randf(), randf())
+#		var room_color: Color = Color(randf(), randf(), randf())
 		var new_room_size_x: int = MINIMUM_WIDTH + randi() % int(_rect.size.x - MINIMUM_WIDTH + 1) # minimum_width <= _rect.size.x <= _rect.size.x
 		var new_room_size_y: int = MINIMUM_HEIGHT + randi() % int(_rect.size.y - MINIMUM_HEIGHT + 1) # +1 to avoid % by zero
 		var new_room_position_x: int = _rect.position.x + int(_rect.size.x - new_room_size_x)
@@ -189,7 +197,6 @@ class Chunk: # this should probably be called BinaryNode or Chunk or something e
 			for y in range(new_room.position.y+1, new_room.end.y-1): # -/+1 to give us space for walls
 				var c: Cell = _cell_map.node_table[Vector2(x, y) * CELL_SIZE]
 				c.set_cell_type(Cell.CellType.FLOOR)
-				c.get_node('Bg').modulate = room_color
 
 	func dig_tunnel(start_x: int, start_y: int, finish_x: int, finish_y) -> void:
 		if randi() % 2 == 0:
@@ -212,9 +219,6 @@ class Chunk: # this should probably be called BinaryNode or Chunk or something e
 			c.set_cell_type(Cell.CellType.FLOOR)
 
 func generate_map() -> void:
-	var map_width: int = 60
-	var map_height: int = 60
-
 	for x in range(map_width):
 		for y in range(map_height):
 			var c: Cell = S_Cell.instantiate()
@@ -228,6 +232,14 @@ func generate_map() -> void:
 
 	root.build_rooms(4, randi() % 2 == 0)
 	root.connect_rooms_with_tunnels()
+
+func build_mrpas_from_map() -> MRPAS:
+	""" creates a new MRPAS object based on the CellMap and returns it """
+	var m = MRPAS.new(Vector2(map_width, map_height))
+	for cell in node_table:
+		m.set_transparent(world_pos_to_cell(cell), not node_table[cell].blocks_movement)
+	m.clear_field_of_view()
+	return m
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
