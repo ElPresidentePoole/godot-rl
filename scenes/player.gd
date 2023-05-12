@@ -9,7 +9,7 @@ extends Node2D
 # like where the player is in CellMap turns and stuff?  maybe have a signal like
 # turn_taken(new_player_state)?
 
-signal attempt_to_move(dv: Vector2)
+signal request_to_move(dv: Vector2)
 
 var ready_to_move: bool = true
 
@@ -18,7 +18,6 @@ var moving: Globals.MovementDirection = Globals.MovementDirection.NONE
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass
-#	astar.set_point_disabled(cellmap.get_cell_id(position))
 
 func handle_movement() -> void:
 	if not ready_to_move:
@@ -37,7 +36,12 @@ func handle_movement() -> void:
 		dv = Vector2.ZERO
 
 	if dv != Vector2.ZERO:
-		emit_signal('attempt_to_move', dv)
+		emit_signal('request_to_move', dv)
+
+func move(dv: Vector2) -> void:
+	ready_to_move = false
+	await create_tween().tween_property(self, 'position', position+dv, 0.1).finished
+	ready_to_move = true
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("move_north"):

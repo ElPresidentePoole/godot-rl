@@ -13,5 +13,4 @@ script = ExtResource("1_y36ka")
 
 [node name="Player" parent="." instance=ExtResource("3_txnym")]
 
-[connection signal="turn_taken" from="." to="." method="_on_turn_taken"]
-[connection signal="attempt_to_move" from="Player" to="." method="_on_player_attempt_to_move"]
+[connection signal="request_to_move" from="Player" to="." method="_on_player_request_to_move"]
