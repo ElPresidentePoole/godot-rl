@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://re2vp0cuxyld"]
+[gd_scene load_steps=4 format=3 uid="uid://re2vp0cuxyld"]
 
 [ext_resource type="Script" path="res://scenes/dungeon.gd" id="1_y36ka"]
 [ext_resource type="PackedScene" uid="uid://batkty6w8hmy" path="res://scenes/cell_map.tscn" id="2_imety"]
+[ext_resource type="PackedScene" uid="uid://bshgvq58j27y3" path="res://scenes/player.tscn" id="3_txnym"]
 
 [node name="Dungeon" type="Node2D"]
 script = ExtResource("1_y36ka")
@@ -9,3 +10,8 @@ script = ExtResource("1_y36ka")
 [node name="CellMap" parent="." instance=ExtResource("2_imety")]
 
 [node name="Mobs" type="Node" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("3_txnym")]
+
+[connection signal="turn_taken" from="." to="." method="_on_turn_taken"]
+[connection signal="attempt_to_move" from="Player" to="." method="_on_player_attempt_to_move"]
