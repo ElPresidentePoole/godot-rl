@@ -10,6 +10,7 @@ const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 @onready var player: Node2D = $Player
 @onready var player_mrpas: MRPAS = cellmap.build_mrpas_from_map()
 var player_seen_tiles: Array[Vector2] = [] # TODO
+var mob_mrpas_map: Dictionary = {}
 
 func get_cellmap() -> CellMap:
 	return cellmap # TODO: remove, not needed
@@ -26,11 +27,12 @@ func place_player(x: int, y: int) -> void:
 func spawn_mob(x: int, y: int) -> void:
 	var m = S_Mob.instantiate()
 	m.position = Vector2(x, y) * cellmap.CELL_SIZE
+	mob_mrpas_map[m] = cellmap.build_mrpas_from_map()
 	mobs.add_child(m)
 
 func update_player_fov(new_position: Vector2) -> void:
 	""" Calculates the player's current fov and hides/shows mobs and cellmap cells based on it.  This, obviously, causes side effects! 
-	Future note: What side effects?  We aren't doing functional programming?  Also new_position should WORLD position, not cell map position.
+	Note from future me: What side effects?  We aren't doing functional programming?  Also new_position should WORLD position, not cell map position.
 	"""
 	var player_cell_pos: Vector2 = cellmap.world_pos_to_cell(new_position)
 	player_mrpas.clear_field_of_view()
@@ -58,15 +60,17 @@ func update_player_fov(new_position: Vector2) -> void:
 func _ready() -> void:
 	var spawn_room: Vector2 = cellmap.root.get_leaves()[0].get_room_center()
 	place_player(spawn_room.x, spawn_room.y)
-#	var mob_pos: Vector2 = cellmap.root.get_leaves()[1].get_room_center()
-#	spawn_mob(mob_pos.x, mob_pos.y)
+	var mob_pos: Vector2 = cellmap.root.get_leaves()[1].get_room_center()
+	spawn_mob(mob_pos.x, mob_pos.y)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	pass
 
 func process_turn(player_state):
-	update_player_fov(player.position) # why it still broke?
+	for m in mobs.get_children():
+		m.do_turn_behavior(astar, mob_mrpas_map[m], cellmap, player_state)
+	update_player_fov(player.position)
 
 func _on_player_request_to_move(dv):
 	dv *= cellmap.CELL_SIZE
