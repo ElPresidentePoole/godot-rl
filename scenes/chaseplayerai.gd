@@ -3,7 +3,7 @@ extends Node2D
 @onready var astar: AStar2D
 @onready var cellmap: CellMap
 @onready var mrpas: MRPAS = cellmap.build_mrpas_from_map()
-var destination: Vector2
+var last_seen: Vector2
 const VIEW_DISTANCE: int = 3
 
 # Called when the node enters the scene tree for the first time.
@@ -25,11 +25,13 @@ func move(dest: Vector2) -> void:
 	if len(path) > 1 and path[1] != dest:
 		astar.set_point_disabled(cellmap.get_cell_id(position), false)
 		astar.set_point_disabled(cellmap.get_cell_id(path[1]), true)
-		#position = path[1]
 		await create_tween().tween_property(self, 'position', path[1], 0.1).finished
 
 func _on_player_turn_taken(new_player_state: Dictionary) -> void:
 	mrpas.clear_field_of_view()
 	mrpas.compute_field_of_view(cellmap.world_pos_to_cell(position), VIEW_DISTANCE)
 	if mrpas.is_in_view(cellmap.world_pos_to_cell(new_player_state['new_position'])):
+		last_seen = new_player_state['new_position']
 		move(new_player_state['new_position'])
+#	elif last_seen != null and last_seen != cellmap.world_pos_to_cell(position):
+#		move(new_player_state['new_position'])

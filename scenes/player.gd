@@ -65,8 +65,15 @@ func update_fov(mobs: Array[Node], new_position: Vector2) -> void:
 	mrpas.clear_field_of_view()
 	mrpas.compute_field_of_view(player_cell_pos, 8)
 	for c in cellmap.get_children(): # XXX: should the fov code for the player go in player.gd?
-		if mrpas.is_in_view(cellmap.world_pos_to_cell(c.position)):
+		var cell_pos: Vector2 = cellmap.world_pos_to_cell(c.position)
+		if mrpas.is_in_view(cell_pos):
+			if not cell_pos in seen_tiles:
+				seen_tiles.append(cell_pos)
 			c.show()
+			c.symbol.modulate = Color.WHITE
+		elif cell_pos in seen_tiles:
+			c.show()
+			c.symbol.modulate = Color.LIGHT_STEEL_BLUE
 		else:
 			c.hide()
 	for m in mobs:

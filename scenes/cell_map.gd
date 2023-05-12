@@ -242,10 +242,10 @@ func build_mrpas_from_map() -> MRPAS:
 	return m
 
 # Called when the node enters the scene tree for the first time.
-func _ready():
+func _ready() -> void:
 	generate_map()
 	generate_astar()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(delta) -> void:
 	pass
