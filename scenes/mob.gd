@@ -2,9 +2,10 @@ extends Node2D
 
 @export var mob_name: String
 @export var starting_hp: int
+@export var vision_range: int
 var last_seen: Vector2
 var mortality: Mortality = Mortality.new(self, starting_hp)
-const VIEW_DISTANCE: int = 3
+@onready var weapon: Weapon = $Weapon
 signal request_to_attack(perp)
 
 # Called when the node enters the scene tree for the first time.
@@ -44,11 +45,18 @@ func do_turn_behavior(astar: AStar2D, mrpas: MRPAS, cellmap: Node2D, new_player_
 		var closest: int = astar.get_closest_point(last_seen)
 		var path: PackedVector2Array = astar.get_point_path(cellmap.get_cell_id(position), closest)
 #		move(astar, cellmap, last_seen)
+		if len(path) > weapon.attack_range and path[1] != last_seen:
+			astar.set_point_disabled(cellmap.get_cell_id(position), false)
+			astar.set_point_disabled(cellmap.get_cell_id(path[1]), true)
+			await create_tween().tween_property(self, 'position', path[1], 0.1).finished
+		elif last_seen in path.slice(1, weapon.attack_range):
+			emit_signal('request_to_attack', self)
+	elif last_seen:
+		var closest: int = astar.get_closest_point(last_seen)
+		var path: PackedVector2Array = astar.get_point_path(cellmap.get_cell_id(position), closest)
 		if len(path) > 1 and path[1] != last_seen:
 			astar.set_point_disabled(cellmap.get_cell_id(position), false)
 			astar.set_point_disabled(cellmap.get_cell_id(path[1]), true)
 			await create_tween().tween_property(self, 'position', path[1], 0.1).finished
-		elif path[1] == last_seen:
-			emit_signal('request_to_attack', self)
 #	elif last_seen != null and last_seen != cellmap.world_pos_to_cell(position):
 #		move(new_player_state['new_position'])

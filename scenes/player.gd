@@ -5,8 +5,9 @@ extends Node2D
 @onready var e: RayCast2D = $E
 @onready var w: RayCast2D = $W
 @onready var here_area: Area2D = $PickupArea
-var mortality: Mortality = Mortality.new(self, 10)
 @onready var hud: CanvasLayer = $HUDLayer
+var mortality: Mortality = Mortality.new(self, 10)
+@onready var weapon: Weapon = $Weapon
 var mob_name: String = "Adventurer"
 
 # XXX: should there be a "player_state" function or something that returns stuff

@@ -16,7 +16,6 @@ func _init(mortal: Node, hp: int):
 
 func take_damage(dh: int) -> void:
 	self.hp -= dh
+	emit_signal('hurt') # check if dh is 0?
 	if self.hp <= 0:
 		emit_signal('died', self.mortal)
-	else:
-		emit_signal('hurt')

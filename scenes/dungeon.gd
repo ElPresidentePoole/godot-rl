@@ -44,7 +44,7 @@ func spawn_mob(x: int, y: int) -> void:
 
 func update_mob_fov(m: Node2D) -> void:
 	mob_mrpas_map[m].clear_field_of_view()
-	mob_mrpas_map[m].compute_field_of_view(cellmap.world_pos_to_cell(m.position), m.VIEW_DISTANCE)
+	mob_mrpas_map[m].compute_field_of_view(cellmap.world_pos_to_cell(m.position), m.vision_range)
 
 func update_player_fov(new_position: Vector2) -> void:
 	""" Calculates the player's current fov and hides/shows mobs and cellmap cells based on it.  This, obviously, causes side effects! 
@@ -86,11 +86,15 @@ func _ready() -> void:
 	var spawn_room: Vector2 = leaves[0].get_room_center()
 	place_player(spawn_room.x, spawn_room.y) # spawn the player last so our FOV stuff hides the mob
 	for l in leaves:
-		if randf() < 0.5:
+		if randf() < 0.35:
 			# +1/-2 to account for walls
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
 			spawn_gold(gx, gy)
+		if randf() < 0.5:
+			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
+			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
+			spawn_mob(gx, gy)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
@@ -104,15 +108,16 @@ func find_mob_by_position(pos: Vector2) -> Node2D:
 
 func attack(perp: Node2D, victim: Node2D) -> void:
 	# TODO: damage based on perp
-	victim.mortality.take_damage(1)
-	player.hud.log_container.add_entry("{perp} attacks {victim}".format({'perp': perp.mob_name, 'victim': victim.mob_name}))
+	victim.mortality.take_damage(perp.weapon.attack_damage)
+	# should this (below) be signal based?
+	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
 
 func process_turn(player_state):
 	for m in mobs.get_children():
 		if not m.is_queued_for_deletion():
 			update_mob_fov(m)
 			m.do_turn_behavior(astar, mob_mrpas_map[m], cellmap, player_state)
-	update_player_fov(player.position)
+	update_player_fov(player_state['new_position'])
 
 func _on_player_request_to_move(dv):
 	dv *= cellmap.CELL_SIZE
@@ -127,5 +132,5 @@ func _on_player_request_to_move(dv):
 			await get_tree().create_timer(1).timeout
 			player.ready_to_move = true
 	else:
-		process_turn({ 'new_position': player.position+dv })
 		player.move(dv)
+		process_turn({ 'new_position': player.position+dv })

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://bshgvq58j27y3"]
+[gd_scene load_steps=7 format=3 uid="uid://bshgvq58j27y3"]
 
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_8d21e"]
 [ext_resource type="Script" path="res://scenes/player.gd" id="1_k80kx"]
 [ext_resource type="Script" path="res://scenes/HUDLayer.gd" id="3_7ayhc"]
 [ext_resource type="Script" path="res://scenes/LogContainer.gd" id="3_8koru"]
+[ext_resource type="Script" path="res://scenes/weapon.gd" id="5_g7kw1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lircc"]
 size = Vector2(16, 16)
@@ -91,3 +92,9 @@ text = "Welcome to GAME!"
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
 target_position = Vector2(0, 0)
+
+[node name="Weapon" type="Node" parent="."]
+script = ExtResource("5_g7kw1")
+attack_range = 1
+attack_damage = 1
+attack_verb = "slaps"
