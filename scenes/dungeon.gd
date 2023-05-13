@@ -1,7 +1,7 @@
 extends Node2D
 
 const S_Player: PackedScene = preload("res://scenes/player.tscn")
-const S_Mob: PackedScene = preload("res://scenes/mob_wizard.tscn")
+const S_Mob: PackedScene = preload("res://scenes/mob_guard.tscn")
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 const S_Gold: PackedScene = preload("res://scenes/gold.tscn")
 
@@ -87,7 +87,10 @@ func _ready() -> void:
 	place_player(spawn_room.x, spawn_room.y) # spawn the player last so our FOV stuff hides the mob
 	for l in leaves:
 		if randf() < 0.5:
-			spawn_gold(l.get_room_center().x, l.get_room_center().y)
+			# +1/-2 to account for walls
+			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
+			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
+			spawn_gold(gx, gy)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
