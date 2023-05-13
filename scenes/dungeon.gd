@@ -28,6 +28,7 @@ func place_player(x: int, y: int) -> void:
 
 func spawn_mob(x: int, y: int) -> void:
 	var m = S_Mob.instantiate()
+	mobs.add_child(m)
 	m.position = Vector2(x, y) * cellmap.CELL_SIZE
 	var cid: int = cellmap.get_cell_id(m.position)
 	astar.set_point_disabled(cid)
@@ -40,7 +41,6 @@ func spawn_mob(x: int, y: int) -> void:
 		astar.set_point_disabled(cell_died_at, false)
 		mob_mrpas_map.erase(poor_schmuck)
 		)
-	mobs.add_child(m)
 
 func update_mob_fov(m: Node2D) -> void:
 	mob_mrpas_map[m].clear_field_of_view()
@@ -110,6 +110,7 @@ func attack(perp: Node2D, victim: Node2D) -> void:
 	# TODO: damage based on perp
 	victim.mortality.take_damage(perp.weapon.attack_damage)
 	# should this (below) be signal based?
+	print_debug(victim.mortality.hp)
 	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
 
 func process_turn(player_state):
@@ -134,3 +135,25 @@ func _on_player_request_to_move(dv):
 	else:
 		player.move(dv)
 		process_turn({ 'new_position': player.position+dv })
+
+
+func _on_player_fire_at_nearest_mob():
+	# TODO: range
+	if player.ready_to_move:
+		var mobs_to_distance_map: Dictionary = {}
+		for m in mobs.get_children():
+			if player_mrpas.is_in_view(cellmap.world_pos_to_cell(m.position)):
+				mobs_to_distance_map[m] = len(astar.get_point_path(astar.get_closest_point(m.position, true), astar.get_closest_point(player.position, true)))
+		if len(mobs_to_distance_map) > 0:
+			var closest_mob = mobs_to_distance_map.keys()[0]
+			for m in mobs_to_distance_map:
+				if mobs_to_distance_map[m] < mobs_to_distance_map[closest_mob]:
+					closest_mob = m
+			attack(player, closest_mob)
+			process_turn({'new_position': player.position})
+			print_debug('pew')
+		else:
+			print('no one in sight!')
+		player.ready_to_move = false # this did not fix it :(
+		await get_tree().create_timer(1).timeout
+		player.ready_to_move = true

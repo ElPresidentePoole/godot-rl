@@ -6,7 +6,7 @@ extends Node2D
 @onready var w: RayCast2D = $W
 @onready var here_area: Area2D = $PickupArea
 @onready var hud: CanvasLayer = $HUDLayer
-var mortality: Mortality = Mortality.new(self, 10)
+@onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
 var mob_name: String = "Adventurer"
 
@@ -15,6 +15,7 @@ var mob_name: String = "Adventurer"
 # turn_taken(new_player_state)?
 
 signal request_to_move(dv: Vector2)
+signal fire_at_nearest_mob()
 
 var ready_to_move: bool = true
 var gold: int = 0
@@ -76,6 +77,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		moving = Globals.MovementDirection.EAST
 	elif event.is_action_pressed("move_west"):
 		moving = Globals.MovementDirection.WEST
+	elif event.is_action_pressed("fire_at_nearest_mob"):
+		# TODO: wait a bit, also we're spamming shots
+		# are we firing too fast or what?  we just insta-vaporize mobs
+		emit_signal('fire_at_nearest_mob')
 
 	if event.is_action_released("move_north") and moving == Globals.MovementDirection.NORTH \
 		or event.is_action_released("move_south") and moving == Globals.MovementDirection.SOUTH \

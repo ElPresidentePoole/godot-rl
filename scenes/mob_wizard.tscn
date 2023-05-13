@@ -4,7 +4,6 @@
 
 [node name="mob" instance=ExtResource("1_haw02")]
 mob_name = "Wizard"
-starting_hp = 1
 
 [node name="Label" parent="." index="0"]
 modulate = Color(0, 0.521569, 1, 1)

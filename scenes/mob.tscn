@@ -1,7 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bbhvbrxv8f6kj"]
+[gd_scene load_steps=6 format=3 uid="uid://bbhvbrxv8f6kj"]
 
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_1sh38"]
 [ext_resource type="Script" path="res://scenes/mob.gd" id="1_3xlg5"]
+[ext_resource type="Script" path="res://scenes/weapon.gd" id="2_12dqb"]
+[ext_resource type="Script" path="res://scenes/mortality.gd" id="2_l6vsx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0cw64"]
 size = Vector2(32, 32)
@@ -9,7 +11,16 @@ size = Vector2(32, 32)
 [node name="mob" type="Node2D"]
 script = ExtResource("1_3xlg5")
 mob_name = "Base Mob"
-starting_hp = 3
+
+[node name="Weapon" type="Node" parent="."]
+script = ExtResource("2_12dqb")
+attack_range = 1
+attack_damage = 1
+attack_verb = "adfasdads"
+
+[node name="Mortality" type="Node" parent="."]
+script = ExtResource("2_l6vsx")
+max_hp = 4
 
 [node name="Label" type="Label" parent="."]
 modulate = Color(0.94902, 0, 1, 1)

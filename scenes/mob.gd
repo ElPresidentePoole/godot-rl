@@ -1,10 +1,9 @@
 extends Node2D
 
 @export var mob_name: String
-@export var starting_hp: int
 @export var vision_range: int
 var last_seen: Vector2
-var mortality: Mortality = Mortality.new(self, starting_hp)
+@onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
 signal request_to_attack(perp)
 
