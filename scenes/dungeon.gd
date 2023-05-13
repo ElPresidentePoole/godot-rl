@@ -24,6 +24,8 @@ func spawn_mob(x: int, y: int) -> void:
 	var cid: int = cellmap.get_cell_id(m.position)
 	astar.set_point_disabled(cid)
 	mob_mrpas_map[m] = cellmap.build_mrpas_from_map()
+	m.connect('request_to_attack', func(perp):
+		attack(perp, player))
 	m.mortality.connect('died', func(poor_schmuck):
 		var cell_died_at = astar.get_closest_point(poor_schmuck.position, true)
 		poor_schmuck.queue_free()
@@ -82,6 +84,7 @@ func find_mob_by_position(pos: Vector2) -> Node2D:
 func attack(perp: Node2D, victim: Node2D) -> void:
 	# TODO: damage based on perp
 	victim.mortality.take_damage(1)
+	player.hud.get_node("LogContainer").add_entry("{perp} attacks {victim}".format({'perp': perp.name, 'victim': victim.name}))
 
 func process_turn(player_state):
 	for m in mobs.get_children():
@@ -97,7 +100,11 @@ func _on_player_request_to_move(dv):
 		var mob_bumped_into = find_mob_by_position(col_point)
 		if mob_bumped_into:
 			attack(player, mob_bumped_into)
-			process_turn({ 'new_position': player.position+dv }) # FIXME: a turn should pass when we hit em and NOT crash the game
+			process_turn({ 'new_position': player.position })
+			# wait an entire second before allowing us to "move" again, as move's delay is 0.1 seconds
+			player.ready_to_move = false
+			await get_tree().create_timer(1).timeout
+			player.ready_to_move = true
 	else:
 		process_turn({ 'new_position': player.position+dv })
 		player.move(dv)

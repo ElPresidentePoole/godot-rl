@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bshgvq58j27y3"]
+[gd_scene load_steps=4 format=3 uid="uid://bshgvq58j27y3"]
 
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_8d21e"]
 [ext_resource type="Script" path="res://scenes/player.gd" id="1_k80kx"]
+[ext_resource type="Script" path="res://scenes/LogContainer.gd" id="3_8koru"]
 
 [node name="Player" type="Node2D"]
 script = ExtResource("1_k80kx")
@@ -39,3 +40,32 @@ target_position = Vector2(32, 0)
 
 [node name="W" type="RayCast2D" parent="."]
 target_position = Vector2(-32, 0)
+
+[node name="HUDLayer" type="CanvasLayer" parent="."]
+
+[node name="HP" type="Label" parent="HUDLayer"]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "HP: ?/?"
+
+[node name="LogContainer" type="ScrollContainer" parent="HUDLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -115.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 0
+size_flags_vertical = 8
+script = ExtResource("3_8koru")
+
+[node name="EntryContainer" type="VBoxContainer" parent="HUDLayer/LogContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 2
+
+[node name="Label" type="Label" parent="HUDLayer/LogContainer/EntryContainer"]
+layout_mode = 2
+text = "Welcome to GAME!"

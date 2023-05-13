@@ -7,6 +7,7 @@ var hp: int
 var mortal: Node
 
 signal died(he_who_had_their_mortality_clarified: Node2D)
+signal hurt() # hp_changed, healed signals?
 
 func _init(mortal: Node, hp: int):
 	self.hp = hp
@@ -17,3 +18,5 @@ func take_damage(dh: int) -> void:
 	self.hp -= dh
 	if self.hp <= 0:
 		emit_signal('died', self.mortal)
+	else:
+		emit_signal('hurt')
