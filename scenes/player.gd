@@ -12,7 +12,6 @@ extends Node2D
 signal request_to_move(dv: Vector2)
 
 var ready_to_move: bool = true
-
 var moving: Globals.MovementDirection = Globals.MovementDirection.NONE
 
 # Called when the node enters the scene tree for the first time.

@@ -192,7 +192,7 @@ class Chunk: # this should probably be called BinaryNode or Chunk or something e
 		var new_room: Rect2 = Rect2(new_room_position_x, new_room_position_y, new_room_size_x, new_room_size_y)
 		room = new_room # Save our room info for later
 		has_room = true
-		print_debug('room %s' % [room] )
+#		print_debug('room %s' % [room] )
 		for x in range(new_room.position.x+1, new_room.end.x-1):
 			for y in range(new_room.position.y+1, new_room.end.y-1): # -/+1 to give us space for walls
 				var c: Cell = _cell_map.node_table[Vector2(x, y) * CELL_SIZE]

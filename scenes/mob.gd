@@ -1,16 +1,12 @@
 extends Node2D
 
-#@onready var astar: AStar2D
-#@onready var cellmap: CellMap
-#@onready var mrpas: MRPAS = cellmap.build_mrpas_from_map()
 var last_seen: Vector2
+var mortality: Mortality = Mortality.new(self, 3)
 const VIEW_DISTANCE: int = 3
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass
-#	var cid: int = cellmap.get_cell_id(position)
-#	astar.set_point_disabled(cid)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
@@ -29,8 +25,6 @@ func move(astar: AStar2D, cellmap: Node2D, dest: Vector2) -> void:
 		await create_tween().tween_property(self, 'position', path[1], 0.1).finished
 
 func do_turn_behavior(astar: AStar2D, mrpas: MRPAS, cellmap: Node2D, new_player_state: Dictionary) -> void:
-	mrpas.clear_field_of_view()
-	mrpas.compute_field_of_view(cellmap.world_pos_to_cell(position), VIEW_DISTANCE)
 	if mrpas.is_in_view(cellmap.world_pos_to_cell(new_player_state['new_position'])):
 		last_seen = new_player_state['new_position']
 		move(astar, cellmap, new_player_state['new_position'])
