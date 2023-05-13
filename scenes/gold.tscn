@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=3 uid="uid://c86rb8gjn7v6g"]
+
+[ext_resource type="Script" path="res://scenes/gold.gd" id="1_e5jq5"]
+[ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="2_d737a"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0cw64"]
+size = Vector2(32, 32)
+
+[node name="gold" type="Area2D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_e5jq5")
+value = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_0cw64")
+
+[node name="Label" type="Label" parent="."]
+modulate = Color(0.947918, 0.947918, 0, 1)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -17.5
+offset_right = 20.0
+offset_bottom = 17.5
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_d737a")
+text = "$"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -6,6 +6,7 @@ extends Node2D
 @onready var w: RayCast2D = $W
 var mortality: Mortality = Mortality.new(self, 10)
 @onready var hud: CanvasLayer = $HUDLayer
+var mob_name: String = "Adventurer"
 
 # XXX: should there be a "player_state" function or something that returns stuff
 # like where the player is in CellMap turns and stuff?  maybe have a signal like
@@ -14,16 +15,21 @@ var mortality: Mortality = Mortality.new(self, 10)
 signal request_to_move(dv: Vector2)
 
 var ready_to_move: bool = true
+var gold: int = 0
 var moving: Globals.MovementDirection = Globals.MovementDirection.NONE
 
 func build_hplabel_text() -> String:
 	return "HP: {hp}/{max_hp}".format({'hp': mortality.hp, 'max_hp': mortality.max_hp})
 
+func build_goldlabel_text() -> String:
+	return "Gold: {au}".format({'au': gold})
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	$HUDLayer/HP.text = build_hplabel_text()
+	hud.hp_label.text = build_hplabel_text()
+	hud.gold_label.text = build_goldlabel_text()
 	mortality.connect('hurt', func():
-		var hpl = $HUDLayer/HP
+		var hpl = hud.hp_label
 		hpl.text = build_hplabel_text())
 
 func handle_movement() -> void:
@@ -69,3 +75,8 @@ func _unhandled_input(event: InputEvent) -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	handle_movement()
+
+func _on_pickup_area_area_entered(area):
+	area.queue_free()
+	gold += area.value
+	hud.gold_label.text = build_goldlabel_text()

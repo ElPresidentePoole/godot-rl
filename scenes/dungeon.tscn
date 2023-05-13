@@ -11,6 +11,8 @@ script = ExtResource("1_y36ka")
 
 [node name="Mobs" type="Node" parent="."]
 
+[node name="Items" type="Node" parent="."]
+
 [node name="Player" parent="." instance=ExtResource("3_txnym")]
 
 [connection signal="request_to_move" from="Player" to="." method="_on_player_request_to_move"]

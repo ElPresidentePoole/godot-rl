@@ -3,6 +3,7 @@ extends Node2D
 const S_Player: PackedScene = preload("res://scenes/player.tscn")
 const S_Mob: PackedScene = preload("res://scenes/mob_wizard.tscn")
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
+const S_Gold: PackedScene = preload("res://scenes/gold.tscn")
 
 @onready var mobs: Node = $Mobs
 @onready var cellmap: CellMap = $CellMap
@@ -11,6 +12,11 @@ const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 @onready var player_mrpas: MRPAS = cellmap.build_mrpas_from_map()
 var player_seen_tiles: Array[Vector2] = [] # TODO
 var mob_mrpas_map: Dictionary = {}
+
+func spawn_gold(x: int, y: int) -> void:
+	var g = S_Gold.instantiate()
+	$Items.add_child(g)
+	g.position = Vector2(x, y) * cellmap.CELL_SIZE
 
 func place_player(x: int, y: int) -> void:
 	""" Places a player somewhere and then updates fov """
@@ -66,10 +72,14 @@ func update_player_fov(new_position: Vector2) -> void:
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	var mob_pos: Vector2 = cellmap.root.get_leaves()[1].get_room_center()
+	var leaves: Array = cellmap.root.get_leaves()
+	var mob_pos: Vector2 = leaves[1].get_room_center()
 	spawn_mob(mob_pos.x, mob_pos.y)
-	var spawn_room: Vector2 = cellmap.root.get_leaves()[0].get_room_center()
+	var spawn_room: Vector2 = leaves[0].get_room_center()
 	place_player(spawn_room.x, spawn_room.y) # spawn the player last so our FOV stuff hides the mob
+	for l in leaves:
+		if randf() < 0.5:
+			spawn_gold(l.get_room_center().x, l.get_room_center().y)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
@@ -84,7 +94,7 @@ func find_mob_by_position(pos: Vector2) -> Node2D:
 func attack(perp: Node2D, victim: Node2D) -> void:
 	# TODO: damage based on perp
 	victim.mortality.take_damage(1)
-	player.hud.get_node("LogContainer").add_entry("{perp} attacks {victim}".format({'perp': perp.name, 'victim': victim.name}))
+	player.hud.log_container.add_entry("{perp} attacks {victim}".format({'perp': perp.mob_name, 'victim': victim.mob_name}))
 
 func process_turn(player_state):
 	for m in mobs.get_children():
