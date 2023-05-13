@@ -1,13 +1,16 @@
 extends Node2D
 
+@export var mob_name: String
+@export var starting_hp: int
 var last_seen: Vector2
-var mortality: Mortality = Mortality.new(self, 3)
+var mortality: Mortality = Mortality.new(self, starting_hp)
 const VIEW_DISTANCE: int = 3
 signal request_to_attack(perp)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass
+#	mortality = Mortality.new(self, mortality_hp)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:

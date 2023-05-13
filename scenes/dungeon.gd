@@ -1,7 +1,7 @@
 extends Node2D
 
 const S_Player: PackedScene = preload("res://scenes/player.tscn")
-const S_Mob: PackedScene = preload("res://scenes/mob.tscn")
+const S_Mob: PackedScene = preload("res://scenes/mob_wizard.tscn")
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 
 @onready var mobs: Node = $Mobs
