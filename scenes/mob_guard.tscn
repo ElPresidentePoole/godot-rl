@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dasgjngb20ajo"]
+
+[ext_resource type="PackedScene" uid="uid://bbhvbrxv8f6kj" path="res://scenes/mob.tscn" id="1_pwabv"]
+
+[node name="guard" instance=ExtResource("1_pwabv")]
+mob_name = "Nazi Guard"
+starting_hp = 5
+
+[node name="Label" parent="." index="0"]
+modulate = Color(0.913725, 0, 0, 1)
+text = "N"
