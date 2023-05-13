@@ -6,6 +6,7 @@ const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 const S_Gold: PackedScene = preload("res://scenes/gold.tscn")
 
 @onready var mobs: Node = $Mobs
+@onready var items: Node = $Items
 @onready var cellmap: CellMap = $CellMap
 @onready var astar: AStar2D = $CellMap.astar
 @onready var player: Node2D = $Player
@@ -16,6 +17,7 @@ var mob_mrpas_map: Dictionary = {}
 func spawn_gold(x: int, y: int) -> void:
 	var g = S_Gold.instantiate()
 	$Items.add_child(g)
+	g.hide() # I could just have update_player_fov wait for this to spawn first but shouldn't these be hidden at first by default anyways?
 	g.position = Vector2(x, y) * cellmap.CELL_SIZE
 
 func place_player(x: int, y: int) -> void:
@@ -69,6 +71,12 @@ func update_player_fov(new_position: Vector2) -> void:
 			m.show()
 		else:
 			m.hide()
+	for i in items.get_children():
+		var item_cell_pos: Vector2 = cellmap.world_pos_to_cell(i.position)
+		if player_mrpas.is_in_view(item_cell_pos):
+			i.show()
+		else:
+			i.hide()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

@@ -4,6 +4,7 @@ extends Node2D
 @onready var s: RayCast2D = $S
 @onready var e: RayCast2D = $E
 @onready var w: RayCast2D = $W
+@onready var here_area: Area2D = $PickupArea
 var mortality: Mortality = Mortality.new(self, 10)
 @onready var hud: CanvasLayer = $HUDLayer
 var mob_name: String = "Adventurer"
@@ -51,10 +52,19 @@ func handle_movement() -> void:
 	if dv != Vector2.ZERO:
 		emit_signal('request_to_move', dv)
 
+func pickup_items_below_me() -> void:
+	for item in here_area.get_overlapping_areas():
+		# TODO for now there's just gold and we don't need to check if the collider with this area 
+		item.queue_free()
+		gold += item.value
+		hud.gold_label.text = build_goldlabel_text()
+		hud.log_container.add_entry("You pick up {amount} gold.".format({'amount': item.value}))
+
 func move(dv: Vector2) -> void:
 	ready_to_move = false
 	await create_tween().tween_property(self, 'position', position+dv, 0.1).finished
 	ready_to_move = true
+	pickup_items_below_me()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("move_north"):
@@ -75,8 +85,3 @@ func _unhandled_input(event: InputEvent) -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	handle_movement()
-
-func _on_pickup_area_area_entered(area):
-	area.queue_free()
-	gold += area.value
-	hud.gold_label.text = build_goldlabel_text()
