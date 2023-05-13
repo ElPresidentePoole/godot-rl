@@ -25,12 +25,7 @@ func spawn_mob(x: int, y: int) -> void:
 	astar.set_point_disabled(cid)
 	mob_mrpas_map[m] = cellmap.build_mrpas_from_map()
 	m.mortality.connect('died', func(poor_schmuck):
-		# FIXME: doesn't clear the right astar point
-		var cell_died_at = cellmap.get_cell_id(poor_schmuck.position)
-		# for some reason, cellmap.get_cell_id and get_closest_point give different results?
-		# I need to review this code
-#		var cell_died_at = astar.get_closest_point(poor_schmuck.position)
-#		print_debug(cellmap.get_cell_id(poor_schmuck.position), astar.get_closest_point(poor_schmuck.position))
+		var cell_died_at = astar.get_closest_point(poor_schmuck.position, true)
 		poor_schmuck.queue_free()
 		astar.set_point_disabled(cell_died_at, false)
 		mob_mrpas_map.erase(poor_schmuck)
@@ -90,8 +85,9 @@ func attack(perp: Node2D, victim: Node2D) -> void:
 
 func process_turn(player_state):
 	for m in mobs.get_children():
-		update_mob_fov(m)
-		m.do_turn_behavior(astar, mob_mrpas_map[m], cellmap, player_state)
+		if not m.is_queued_for_deletion():
+			update_mob_fov(m)
+			m.do_turn_behavior(astar, mob_mrpas_map[m], cellmap, player_state)
 	update_player_fov(player.position)
 
 func _on_player_request_to_move(dv):
@@ -101,7 +97,7 @@ func _on_player_request_to_move(dv):
 		var mob_bumped_into = find_mob_by_position(col_point)
 		if mob_bumped_into:
 			attack(player, mob_bumped_into)
-			# process_turn({ 'new_position': player.position+dv }) # FIXME: a turn should pass when we hit em and NOT crash the game
+			process_turn({ 'new_position': player.position+dv }) # FIXME: a turn should pass when we hit em and NOT crash the game
 	else:
 		process_turn({ 'new_position': player.position+dv })
 		player.move(dv)

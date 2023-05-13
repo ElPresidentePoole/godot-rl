@@ -39,6 +39,7 @@ func get_cell_id(cell: Vector2) -> int:
 	""" Gets the id of a cell from its Vector2, or assigns it an id and returns the new id """
 	if not cell in id_table:
 		id_table[cell] = astar.get_available_point_id()
+#		print_debug(cell, " not in id_table, added new cell as id ", id_table[cell])
 	return id_table[cell]
 
 func get_adjacent_cells_diag(pos: Vector2) -> Array[Vector2]:
