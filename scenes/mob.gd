@@ -21,6 +21,7 @@ func _ready() -> void:
 	weapon.attack_damage = mob_data['weapon']['damage']
 	weapon.attack_verb = mob_data['weapon']['verb']
 	mortality.max_hp = mob_data['mortality']['max_hp']
+	mortality.hp = mortality.max_hp
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:

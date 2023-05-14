@@ -5,6 +5,7 @@ const S_Mob: PackedScene = preload("res://scenes/mob.tscn")
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 const S_Gold: PackedScene = preload("res://scenes/gold.tscn")
 const S_Gem: PackedScene = preload("res://scenes/gem.tscn")
+const S_VisualProjectile: PackedScene = preload("res://scenes/visualprojectile.tscn")
 
 @onready var mobs: Node = $Mobs
 @onready var items: Node = $Items
@@ -16,6 +17,29 @@ const S_Gem: PackedScene = preload("res://scenes/gem.tscn")
 var player_seen_tiles: Array[Vector2] = [] # TODO
 var mob_mrpas_map: Dictionary = {}
 
+func visualize_projectile(from: Vector2, to: Vector2) -> void:
+	""" spawns a node to go from "from" to "to".  uses absolute positioning! """
+	"""
+	# XXX: should astar be using cell map position or absolute?  i feel like making the positioning "types" more consistent would be a good refactor...
+	var from_cid: int = astar.get_closest_point(from, true)
+	var to_cid: int = astar.get_closest_point(to, true)
+	# HACK: excuse me sir i need to enable your point
+	astar.set_point_disabled(to_cid, false)
+	var path = astar.get_point_path(from_cid, to_cid)
+	astar.set_point_disabled(to_cid, true)
+	print_debug('asdf' , path, ' from ' , from)
+	if len(path) > 1:
+		var proj: Node2D = S_VisualProjectile.instantiate()
+		proj.path = path
+		add_child(proj)
+		await proj.tree_exiting
+	"""
+	var proj: Node2D = S_VisualProjectile.instantiate()
+	proj.position = from
+	proj.dest = to
+	add_child(proj)
+	await proj.tree_exiting
+	
 func spawn_gem(x: int, y: int) -> void:
 	var g = S_Gem.instantiate()
 	$Items.add_child(g)
@@ -119,11 +143,12 @@ func find_mob_by_position(pos: Vector2) -> Node2D:
 	return null
 
 func attack(perp: Node2D, victim: Node2D) -> void:
-	# TODO: damage based on perp
 	victim.mortality.take_damage(perp.weapon.attack_damage)
+	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
+	visualize_projectile(perp.position, victim.position)
+	# TODO: damage based on perp
 	# should this (below) be signal based?
 #	print_debug(victim.mortality.hp)
-	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
 
 func process_turn(player_state):
 	for m in mobs.get_children():
@@ -168,6 +193,3 @@ func _on_player_fire_at_nearest_mob():
 				player.hud.log_container.add_entry('Out of range!')
 		else:
 			player.hud.log_container.add_entry('No one in sight!')
-		player.ready_to_move = false # this did not fix it :(
-		await get_tree().create_timer(0.5).timeout
-		player.ready_to_move = true

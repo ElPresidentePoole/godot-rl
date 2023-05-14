@@ -29,6 +29,11 @@ func build_goldlabel_text() -> String:
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	mortality.max_hp = 10
+	mortality.hp = mortality.max_hp
+	weapon.attack_range = 10
+	weapon.attack_damage = 5
+	weapon.attack_verb = 'shoots'
 	hud.hp_label.text = build_hplabel_text()
 	hud.gold_label.text = build_goldlabel_text()
 	mortality.connect('hurt', func():

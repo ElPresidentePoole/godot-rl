@@ -96,10 +96,6 @@ target_position = Vector2(0, 0)
 
 [node name="Mortality" type="Node" parent="."]
 script = ExtResource("5_a5km8")
-max_hp = 10
 
 [node name="Weapon" type="Node" parent="."]
 script = ExtResource("5_g7kw1")
-attack_range = 5
-attack_damage = 4
-attack_verb = "shoots"

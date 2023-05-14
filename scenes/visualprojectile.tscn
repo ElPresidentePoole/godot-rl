@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://b2f5cemhhos1b"]
+
+[ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_4fv5d"]
+[ext_resource type="Script" path="res://scenes/visualprojectile.gd" id="1_i7lfv"]
+
+[node name="visualprojectile" type="Node2D"]
+script = ExtResource("1_i7lfv")
+
+[node name="Label" type="Label" parent="."]
+modulate = Color(0.917647, 0.776471, 0, 1)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -17.5
+offset_right = 20.0
+offset_bottom = 17.5
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_4fv5d")
+text = "*"
+horizontal_alignment = 1
+vertical_alignment = 1
