@@ -2,9 +2,9 @@ extends Node
 
 class_name Weapon
 
-@export var attack_range: int
-@export var attack_damage: int
-@export var attack_verb: String
+var attack_range: int
+var attack_damage: int
+var attack_verb: String
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

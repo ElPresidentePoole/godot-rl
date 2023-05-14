@@ -15,7 +15,7 @@ enum MovementDirection {
 func load_mobs():
 	var file: FileAccess = FileAccess.open("res://mobs.json", FileAccess.READ)
 	beastiary = JSON.parse_string(file.get_as_text())
-	print(beastiary)
+	print(typeof(beastiary))
 
 func _ready():
 	load_mobs()

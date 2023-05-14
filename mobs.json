@@ -1,15 +1,41 @@
 {
 	"guard": {
 		"mob_name": "Nazi Guard",
-		"symbol": "N",
+		"vision_range": 6,
+		"symbol": "g",
 		"color": "#e90000",
-		"attack": {
+		"weapon": {
 			"range": 4,
 			"damage": 4,
 			"verb": "shoots"
 		},
 		"mortality": {
 			"max_hp": 6
-		}
-	}
+		}},
+	"wizard": {
+		"mob_name": "Nazi Occultist",
+		"vision_range": 7,
+		"symbol": "w",
+		"color": "#3399ff",
+		"weapon": {
+			"range": 6,
+			"damage": 2,
+			"verb": "zaps"
+		},
+		"mortality": {
+			"max_hp": 2
+		}},
+	"officer": {
+		"mob_name": "Nazi Officer",
+		"vision_range": 7,
+		"symbol": "o",
+		"color": "#3399ff",
+		"weapon": {
+			"range": 6,
+			"damage": 5,
+			"verb": "blasts"
+		},
+		"mortality": {
+			"max_hp": 8
+		}},
 }

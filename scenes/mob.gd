@@ -1,16 +1,26 @@
 extends Node2D
 
-@export var mob_name: String
-@export var vision_range: int
+var mob_name: String
+var vision_range: int
 var last_seen: Vector2
+var mob_key: String
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
+@onready var label: Label = $Label
 signal request_to_attack(perp)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass
-#	mortality = Mortality.new(self, mortality_hp)
+	assert(mob_key != null && mob_key in Globals.beastiary)
+	var mob_data: Dictionary = Globals.beastiary[mob_key]
+	vision_range = mob_data['vision_range']
+	mob_name = mob_data['mob_name']
+	label.text = mob_data['symbol']
+	label.modulate = Color(mob_data['color'])
+	weapon.attack_range = mob_data['weapon']['range']
+	weapon.attack_damage = mob_data['weapon']['damage']
+	weapon.attack_verb = mob_data['weapon']['verb']
+	mortality.max_hp = mob_data['mortality']['max_hp']
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:

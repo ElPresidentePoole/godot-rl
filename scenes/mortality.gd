@@ -2,7 +2,7 @@ extends Node
 
 class_name Mortality
 
-@export var max_hp: int
+var max_hp: int
 var hp: int
 @onready var mortal: Node = get_parent()
 

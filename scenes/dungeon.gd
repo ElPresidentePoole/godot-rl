@@ -32,8 +32,9 @@ func place_player(x: int, y: int) -> void:
 	""" Places a player somewhere and then updates fov """
 	player.position = Vector2(x, y) * cellmap.CELL_SIZE
 
-func spawn_mob(x: int, y: int) -> void:
+func spawn_mob(x: int, y: int, mob_key: String) -> void:
 	var m = S_Mob.instantiate()
+	m.mob_key = mob_key
 	mobs.add_child(m)
 	m.position = Vector2(x, y) * cellmap.CELL_SIZE
 	var cid: int = cellmap.get_cell_id(m.position)
@@ -88,8 +89,6 @@ func update_player_fov(new_position: Vector2) -> void:
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	var leaves: Array = cellmap.root.get_leaves()
-	var mob_pos: Vector2 = leaves[1].get_room_center()
-	spawn_mob(mob_pos.x, mob_pos.y)
 	var spawn_room: Vector2 = leaves[0].get_room_center()
 	place_player(spawn_room.x, spawn_room.y) # spawn the player last so our FOV stuff hides the mob
 	for l in leaves:
@@ -106,7 +105,7 @@ func _ready() -> void:
 		if randf() < 0.5:
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
-			spawn_mob(gx, gy)
+			spawn_mob(gx, gy, ['wizard', 'officer', 'guard'][randi() % 3])
 	update_player_fov(player.position)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -10,17 +10,12 @@ size = Vector2(32, 32)
 
 [node name="mob" type="Node2D"]
 script = ExtResource("1_3xlg5")
-mob_name = "Base Mob"
 
 [node name="Weapon" type="Node" parent="."]
 script = ExtResource("2_12dqb")
-attack_range = 1
-attack_damage = 1
-attack_verb = "adfasdads"
 
 [node name="Mortality" type="Node" parent="."]
 script = ExtResource("2_l6vsx")
-max_hp = 4
 
 [node name="Label" type="Label" parent="."]
 modulate = Color(0.94902, 0, 1, 1)
