@@ -1,7 +1,7 @@
 extends Node2D
 
 const S_Player: PackedScene = preload("res://scenes/player.tscn")
-const S_Mob: PackedScene = preload("res://scenes/mob_guard.tscn")
+const S_Mob: PackedScene = preload("res://scenes/mob.tscn")
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 const S_Gold: PackedScene = preload("res://scenes/gold.tscn")
 const S_Gem: PackedScene = preload("res://scenes/gem.tscn")

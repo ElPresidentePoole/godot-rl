@@ -1,0 +1,15 @@
+{
+	"guard": {
+		"mob_name": "Nazi Guard",
+		"symbol": "N",
+		"color": "#e90000",
+		"attack": {
+			"range": 4,
+			"damage": 4,
+			"verb": "shoots"
+		},
+		"mortality": {
+			"max_hp": 6
+		}
+	}
+}
