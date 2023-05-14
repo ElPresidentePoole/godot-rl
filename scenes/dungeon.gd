@@ -4,27 +4,33 @@ const S_Player: PackedScene = preload("res://scenes/player.tscn")
 const S_Mob: PackedScene = preload("res://scenes/mob_guard.tscn")
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 const S_Gold: PackedScene = preload("res://scenes/gold.tscn")
+const S_Gem: PackedScene = preload("res://scenes/gem.tscn")
 
 @onready var mobs: Node = $Mobs
 @onready var items: Node = $Items
 @onready var cellmap: CellMap = $CellMap
 @onready var astar: AStar2D = $CellMap.astar
 @onready var player: Node2D = $Player
+#@onready var player_log: LogContainer = $Player/HUDLayer/LogContainer
 @onready var player_mrpas: MRPAS = cellmap.build_mrpas_from_map()
 var player_seen_tiles: Array[Vector2] = [] # TODO
 var mob_mrpas_map: Dictionary = {}
 
+func spawn_gem(x: int, y: int) -> void:
+	var g = S_Gem.instantiate()
+	$Items.add_child(g)
+	# g.hide() # I could just have update_player_fov wait for this to spawn first but shouldn't these be hidden at first by default anyways?
+	g.position = Vector2(x, y) * cellmap.CELL_SIZE
+
 func spawn_gold(x: int, y: int) -> void:
 	var g = S_Gold.instantiate()
 	$Items.add_child(g)
-	g.hide() # I could just have update_player_fov wait for this to spawn first but shouldn't these be hidden at first by default anyways?
+	# g.hide() # I could just have update_player_fov wait for this to spawn first but shouldn't these be hidden at first by default anyways?
 	g.position = Vector2(x, y) * cellmap.CELL_SIZE
 
 func place_player(x: int, y: int) -> void:
 	""" Places a player somewhere and then updates fov """
-	var p = player
-	p.position = Vector2(x, y) * cellmap.CELL_SIZE
-	update_player_fov(p.position)
+	player.position = Vector2(x, y) * cellmap.CELL_SIZE
 
 func spawn_mob(x: int, y: int) -> void:
 	var m = S_Mob.instantiate()
@@ -40,6 +46,7 @@ func spawn_mob(x: int, y: int) -> void:
 		poor_schmuck.queue_free()
 		astar.set_point_disabled(cell_died_at, false)
 		mob_mrpas_map.erase(poor_schmuck)
+		player.hud.log_container.add_entry('{name} has died!'.format({'name': poor_schmuck.mob_name}))
 		)
 
 func update_mob_fov(m: Node2D) -> void:
@@ -86,6 +93,11 @@ func _ready() -> void:
 	var spawn_room: Vector2 = leaves[0].get_room_center()
 	place_player(spawn_room.x, spawn_room.y) # spawn the player last so our FOV stuff hides the mob
 	for l in leaves:
+		if randf() < 0.15:
+			# +1/-2 to account for walls
+			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
+			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
+			spawn_gem(gx, gy)
 		if randf() < 0.35:
 			# +1/-2 to account for walls
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
@@ -95,6 +107,7 @@ func _ready() -> void:
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
 			spawn_mob(gx, gy)
+	update_player_fov(player.position)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
@@ -110,7 +123,7 @@ func attack(perp: Node2D, victim: Node2D) -> void:
 	# TODO: damage based on perp
 	victim.mortality.take_damage(perp.weapon.attack_damage)
 	# should this (below) be signal based?
-	print_debug(victim.mortality.hp)
+#	print_debug(victim.mortality.hp)
 	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
 
 func process_turn(player_state):
@@ -130,7 +143,7 @@ func _on_player_request_to_move(dv):
 			process_turn({ 'new_position': player.position })
 			# wait an entire second before allowing us to "move" again, as move's delay is 0.1 seconds
 			player.ready_to_move = false
-			await get_tree().create_timer(1).timeout
+			await get_tree().create_timer(0.5).timeout
 			player.ready_to_move = true
 	else:
 		player.move(dv)
@@ -149,11 +162,13 @@ func _on_player_fire_at_nearest_mob():
 			for m in mobs_to_distance_map:
 				if mobs_to_distance_map[m] < mobs_to_distance_map[closest_mob]:
 					closest_mob = m
-			attack(player, closest_mob)
-			process_turn({'new_position': player.position})
-			print_debug('pew')
+			if mobs_to_distance_map[closest_mob] <= player.weapon.attack_range+1:
+				attack(player, closest_mob)
+				process_turn({'new_position': player.position})
+			else:
+				player.hud.log_container.add_entry('Out of range!')
 		else:
-			print('no one in sight!')
+			player.hud.log_container.add_entry('No one in sight!')
 		player.ready_to_move = false # this did not fix it :(
-		await get_tree().create_timer(1).timeout
+		await get_tree().create_timer(0.5).timeout
 		player.ready_to_move = true

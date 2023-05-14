@@ -100,6 +100,6 @@ max_hp = 10
 
 [node name="Weapon" type="Node" parent="."]
 script = ExtResource("5_g7kw1")
-attack_range = 1
-attack_damage = 1
-attack_verb = "slaps"
+attack_range = 5
+attack_damage = 4
+attack_verb = "shoots"

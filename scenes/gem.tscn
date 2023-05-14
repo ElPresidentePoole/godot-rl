@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://tvxr6sa5f2c4"]
+
+[ext_resource type="PackedScene" uid="uid://c86rb8gjn7v6g" path="res://scenes/gold.tscn" id="1_66htd"]
+
+[node name="gem" instance=ExtResource("1_66htd")]
+value = 10
+
+[node name="Label" parent="." index="1"]
+modulate = Color(0, 0.94902, 0, 1)
+text = "*"

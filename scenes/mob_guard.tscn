@@ -8,8 +8,11 @@ vision_range = 5
 
 [node name="Weapon" parent="." index="0"]
 attack_range = 4
-attack_damage = 3
+attack_damage = 4
 attack_verb = "shoots"
+
+[node name="Mortality" parent="." index="1"]
+max_hp = 6
 
 [node name="Label" parent="." index="2"]
 modulate = Color(0.913725, 0, 0, 1)
