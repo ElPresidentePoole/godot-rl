@@ -210,6 +210,7 @@ func _on_perform_game_action(action, data) -> void:
 		data['actor'].ready_to_act = false
 		await attack(data['actor'], data['victim'])
 		data['actor'].ready_to_act = true
+		# "Invalid set index 'ready_to_act' (on base: 'previously freed') with value of type 'bool'
 		action_successful = true
 	elif action == GameAction.Actions.MOVE:
 		var pos_final: Vector2 = data['actor'].position + cellmap.cell_pos_to_world(data['dv'])
