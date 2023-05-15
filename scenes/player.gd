@@ -53,7 +53,7 @@ func handle_movement() -> void:
 		dv = Vector2.ZERO
 
 	if dv != Vector2.ZERO:
-		if ready_to_act: emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
+		emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 
 func pickup_items_below_me() -> void:
 	for item in here_area.get_overlapping_areas():
@@ -79,7 +79,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("fire_at_nearest_mob"):
 		# TODO: wait a bit, also we're spamming shots
 		# are we firing too fast or what?  we just insta-vaporize mobs
-		if ready_to_act: emit_signal("perform_game_action", GameAction.Actions.AIM, {'actor': self})
+		emit_signal("perform_game_action", GameAction.Actions.AIM, {'actor': self})
 
 	if event.is_action_released("move_north") and moving == Globals.MovementDirection.NORTH \
 		or event.is_action_released("move_south") and moving == Globals.MovementDirection.SOUTH \

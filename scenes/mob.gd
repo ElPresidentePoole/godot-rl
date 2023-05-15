@@ -4,6 +4,7 @@ var mob_name: String
 var vision_range: int
 var last_seen: Vector2
 var mob_key: String
+var ready_to_act: bool = true
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
 @onready var label: Label = $Label

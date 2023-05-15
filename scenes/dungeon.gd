@@ -199,6 +199,8 @@ func process_turn(player_state):
 
 
 func _on_perform_game_action(action, data) -> void:
+	if not player.ready_to_act or mobs.get_children().any(func(m): not m.ready_to_act):
+		return
 	var action_successful: bool = false
 	if action == GameAction.Actions.ATTACK:
 		attack(data['actor'], data['victim'])
