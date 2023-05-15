@@ -10,6 +10,7 @@ var ready_to_act: bool = true
 @onready var label: Label = $Label
 
 signal perform_game_action(action: GameAction.Actions, data: Dictionary)
+signal done_acting()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

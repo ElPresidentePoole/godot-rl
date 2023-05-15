@@ -90,7 +90,3 @@ func _unhandled_input(event: InputEvent) -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	handle_movement()
-
-
-func _on_action_cooldown_timer_timeout():
-	ready_to_act = true

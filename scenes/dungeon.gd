@@ -146,7 +146,7 @@ func find_mob_by_position(pos: Vector2) -> Node2D:
 func attack(perp: Node2D, victim: Node2D) -> void:
 	victim.mortality.take_damage(perp.weapon.attack_damage)
 	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
-	visualize_projectile(perp.position, victim.position)
+	await visualize_projectile(perp.position, victim.position)
 	# TODO: damage based on perp
 	# should this (below) be signal based?
 #	print_debug(victim.mortality.hp)
@@ -154,8 +154,10 @@ func attack(perp: Node2D, victim: Node2D) -> void:
 func process_turn(player_state):
 	for m in mobs.get_children():
 		if not m.is_queued_for_deletion():
+			m.ready_to_act = false
 			update_mob_fov(m)
 			m.do_turn_behavior(astar, mob_mrpas_map[m], cellmap, player_state, player)
+			m.ready_to_act = true
 	update_player_fov(player_state['new_position'])
 	turn_count += 1
 	player.hud.turn_label.text = 'Turn: {t}'.format({'t': turn_count})
@@ -199,18 +201,22 @@ func process_turn(player_state):
 
 
 func _on_perform_game_action(action, data) -> void:
-	if not player.ready_to_act or mobs.get_children().any(func(m): not m.ready_to_act):
+	if data['actor'] == player and (not player.ready_to_act or mobs.get_children().any(func(m): not m.ready_to_act)):
 		return
 	var action_successful: bool = false
 	if action == GameAction.Actions.ATTACK:
-		attack(data['actor'], data['victim'])
+		data['actor'].ready_to_act = false
+		await attack(data['actor'], data['victim'])
+		data['actor'].ready_to_act = true
 		action_successful = true
 	elif action == GameAction.Actions.MOVE:
 		var pos_final: Vector2 = data['actor'].position + cellmap.cell_pos_to_world(data['dv'])
 		if astar.is_point_disabled(astar.get_closest_point(pos_final, true)): # TODO: may need to check if the points are connected too!
 			player.hud.log_container.add_entry("I can't move there!")
 		else:
-			data['actor'].move(astar, cellmap, pos_final)
+			data['actor'].ready_to_act = false
+			await data['actor'].move(astar, cellmap, pos_final)
+			data['actor'].ready_to_act = true
 			action_successful = true
 	elif action == GameAction.Actions.AIM:
 		var mobs_to_distance_map: Dictionary = {}
@@ -223,7 +229,6 @@ func _on_perform_game_action(action, data) -> void:
 				if mobs_to_distance_map[m] < mobs_to_distance_map[closest_mob]:
 					closest_mob = m
 			if mobs_to_distance_map[closest_mob] <= player.weapon.attack_range+1:
-				attack(player, closest_mob)
 				player.emit_signal('perform_game_action', GameAction.Actions.ATTACK, { 'actor': player, 'victim': closest_mob })
 				action_successful = true
 			else:
@@ -234,6 +239,4 @@ func _on_perform_game_action(action, data) -> void:
 		action_successful = true # I mean, what else is there to do?
 	
 	if action_successful and data['actor'] == player:
-		player.ready_to_act = false
-		player.action_cooldown_timer.start()
 		process_turn({ 'new_position': player.position })
