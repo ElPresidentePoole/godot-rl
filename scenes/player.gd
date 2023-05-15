@@ -9,6 +9,7 @@ extends Node2D
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
 @onready var attack_sound: AudioStreamPlayer2D = $AttackSound
+@onready var treasure_sound: AudioStreamPlayer2D = $TreasureSound
 var mob_name: String = "Adventurer"
 
 signal perform_game_action(action: GameAction.Actions, data: Dictionary)
@@ -56,12 +57,15 @@ func handle_movement() -> void:
 		emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 
 func pickup_items_below_me() -> void:
-	for item in here_area.get_overlapping_areas():
+	var items: Array[Area2D] = here_area.get_overlapping_areas()
+	for item in items:
 		# TODO for now there's just gold and we don't need to check if the collider with this area 
 		item.queue_free()
 		gold += item.value
 		hud.gold_label.text = build_goldlabel_text()
 		hud.log_container.add_entry("You pick up {amount} gold.".format({'amount': item.value}))
+	if not items.is_empty():
+		treasure_sound.play()
 
 func move(_astar: AStar2D, _cellmap: Node2D, dest: Vector2) -> void:
 	await create_tween().tween_property(self, 'position', dest, 0.1).finished

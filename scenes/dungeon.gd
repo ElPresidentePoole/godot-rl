@@ -38,7 +38,7 @@ func visualize_projectile(from: Vector2, to: Vector2) -> void:
 	var proj: Node2D = S_VisualProjectile.instantiate()
 	proj.position = from
 	proj.dest = to
-	add_child(proj)
+	add_child.call_deferred(proj)
 	await proj.tree_exiting
 	
 func spawn_gem(x: int, y: int) -> void:
@@ -209,7 +209,7 @@ func _on_perform_game_action(action, data) -> void:
 	if action == GameAction.Actions.ATTACK:
 		data['actor'].ready_to_act = false
 		await attack(data['actor'], data['victim'])
-		data['actor'].ready_to_act = true
+		if data['actor'] != null: data['actor'].ready_to_act = true # really lazy fix for "previously deleted blah blah blah" ctdf
 		action_successful = true
 	elif action == GameAction.Actions.MOVE:
 		var pos_final: Vector2 = data['actor'].position + cellmap.cell_pos_to_world(data['dv'])

@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scenes/mob.gd" id="1_3xlg5"]
 [ext_resource type="Script" path="res://scenes/weapon.gd" id="2_12dqb"]
 [ext_resource type="Script" path="res://scenes/mortality.gd" id="2_l6vsx"]
-[ext_resource type="AudioStream" uid="uid://hd8cq47cx3u7" path="res://sfx/gunshot.wav" id="5_mp87a"]
+[ext_resource type="AudioStream" uid="uid://7y8icdrc2aah" path="res://sfx/zap.wav" id="5_64cpn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0cw64"]
 size = Vector2(32, 32)
@@ -37,7 +37,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="AttackSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("5_mp87a")
+stream = ExtResource("5_64cpn")
 
 [node name="Hitbox" type="Area2D" parent="."]
 
