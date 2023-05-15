@@ -8,7 +8,7 @@ extends Node2D
 @onready var hud: CanvasLayer = $HUDLayer
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
-@onready var action_cooldown_timer: Timer = $ActionCooldownTimer
+@onready var attack_sound: AudioStreamPlayer2D = $AttackSound
 var mob_name: String = "Adventurer"
 
 signal perform_game_action(action: GameAction.Actions, data: Dictionary)

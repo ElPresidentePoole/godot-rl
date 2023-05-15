@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://bbhvbrxv8f6kj"]
+[gd_scene load_steps=7 format=3 uid="uid://bbhvbrxv8f6kj"]
 
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_1sh38"]
 [ext_resource type="Script" path="res://scenes/mob.gd" id="1_3xlg5"]
 [ext_resource type="Script" path="res://scenes/weapon.gd" id="2_12dqb"]
 [ext_resource type="Script" path="res://scenes/mortality.gd" id="2_l6vsx"]
+[ext_resource type="AudioStream" uid="uid://hd8cq47cx3u7" path="res://sfx/gunshot.wav" id="5_mp87a"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0cw64"]
 size = Vector2(32, 32)
@@ -34,6 +35,9 @@ theme = ExtResource("1_1sh38")
 text = "?"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="AttackSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_mp87a")
 
 [node name="Hitbox" type="Area2D" parent="."]
 

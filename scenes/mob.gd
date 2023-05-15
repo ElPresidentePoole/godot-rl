@@ -8,6 +8,7 @@ var ready_to_act: bool = true
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
 @onready var label: Label = $Label
+@onready var attack_sound: AudioStreamPlayer2D = $AttackSound
 
 signal perform_game_action(action: GameAction.Actions, data: Dictionary)
 signal done_acting()

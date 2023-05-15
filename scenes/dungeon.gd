@@ -146,6 +146,8 @@ func find_mob_by_position(pos: Vector2) -> Node2D:
 func attack(perp: Node2D, victim: Node2D) -> void:
 	victim.mortality.take_damage(perp.weapon.attack_damage)
 	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
+	# TODO: attack_sound should probably be a property of Weapon.gd
+	perp.attack_sound.play()
 	await visualize_projectile(perp.position, victim.position)
 	# TODO: damage based on perp
 	# should this (below) be signal based?
