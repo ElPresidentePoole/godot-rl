@@ -11,6 +11,8 @@ func _process(delta):
 	pass
 
 func add_entry(msg: String):
+#	if get_child_count() > 0 and get_child(0).text
+# TODO: duplicates should be marked as xN (i.e. 'you shoot x5')
 	var l = Label.new()
 	l.text = msg
 	$EntryContainer.add_child(l)

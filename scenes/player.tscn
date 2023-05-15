@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bshgvq58j27y3"]
+[gd_scene load_steps=9 format=3 uid="uid://bshgvq58j27y3"]
 
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_8d21e"]
 [ext_resource type="Script" path="res://scenes/player.gd" id="1_k80kx"]
@@ -6,8 +6,7 @@
 [ext_resource type="Script" path="res://scenes/LogContainer.gd" id="3_8koru"]
 [ext_resource type="Script" path="res://scenes/mortality.gd" id="5_a5km8"]
 [ext_resource type="Script" path="res://scenes/weapon.gd" id="5_g7kw1"]
-[ext_resource type="AudioStream" uid="uid://hd8cq47cx3u7" path="res://sfx/gunshot.wav" id="7_6k366"]
-[ext_resource type="AudioStream" uid="uid://bxs1ygyldymr2" path="res://sfx/pickupGold.wav" id="7_avth2"]
+[ext_resource type="AudioStream" uid="uid://bxs1ygyldymr2" path="res://sfx/pickupGold.wav" id="7_fb8eb"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lircc"]
 size = Vector2(16, 16)
@@ -106,8 +105,7 @@ script = ExtResource("5_a5km8")
 [node name="Weapon" type="Node" parent="."]
 script = ExtResource("5_g7kw1")
 
-[node name="AttackSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("7_6k366")
+[node name="AttackSound" type="AudioStreamPlayer" parent="."]
 
-[node name="TreasureSound" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("7_avth2")
+[node name="TreasureSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_fb8eb")

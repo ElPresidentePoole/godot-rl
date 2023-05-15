@@ -7,7 +7,8 @@
 		"weapon": {
 			"range": 4,
 			"damage": 4,
-			"verb": "shoots"
+			"verb": "shoots",
+			"sound": "gunshot"
 		},
 		"mortality": {
 			"max_hp": 6
@@ -20,7 +21,8 @@
 		"weapon": {
 			"range": 6,
 			"damage": 2,
-			"verb": "zaps"
+			"verb": "zaps",
+			"sound": "zap"
 		},
 		"mortality": {
 			"max_hp": 2
@@ -33,7 +35,8 @@
 		"weapon": {
 			"range": 6,
 			"damage": 5,
-			"verb": "blasts"
+			"verb": "blasts",
+			"sound": "gunshot"
 		},
 		"mortality": {
 			"max_hp": 8

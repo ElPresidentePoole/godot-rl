@@ -8,8 +8,8 @@ extends Node2D
 @onready var hud: CanvasLayer = $HUDLayer
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
-@onready var attack_sound: AudioStreamPlayer2D = $AttackSound
-@onready var treasure_sound: AudioStreamPlayer2D = $TreasureSound
+@onready var attack_sound: AudioStreamPlayer = $AttackSound
+@onready var treasure_sound: AudioStreamPlayer = $TreasureSound
 var mob_name: String = "Adventurer"
 
 signal perform_game_action(action: GameAction.Actions, data: Dictionary)
@@ -36,6 +36,7 @@ func _ready() -> void:
 	mortality.connect('hurt', func():
 		var hpl = hud.hp_label
 		hpl.text = build_hplabel_text())
+#	attack_sound.sound
 
 func handle_movement() -> void:
 	if not ready_to_act:
