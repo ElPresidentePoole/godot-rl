@@ -209,7 +209,7 @@ func _on_perform_game_action(action, data) -> void:
 	if action == GameAction.Actions.ATTACK:
 		data['actor'].ready_to_act = false
 		await attack(data['actor'], data['victim'])
-		if data['actor'] != null: data['actor'].ready_to_act = true # really lazy fix for "previously deleted blah blah blah" ctdf
+		data['actor'].ready_to_act = true
 		action_successful = true
 	elif action == GameAction.Actions.MOVE:
 		var pos_final: Vector2 = data['actor'].position + cellmap.cell_pos_to_world(data['dv'])
