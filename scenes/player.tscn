@@ -69,6 +69,10 @@ text = "HP: ?/?"
 layout_mode = 2
 text = "Gold: ?"
 
+[node name="Turn" type="Label" parent="HUDLayer/Labels"]
+layout_mode = 2
+text = "Turn: ?"
+
 [node name="LogContainer" type="ScrollContainer" parent="HUDLayer"]
 anchors_preset = 12
 anchor_top = 1.0
@@ -99,3 +103,9 @@ script = ExtResource("5_a5km8")
 
 [node name="Weapon" type="Node" parent="."]
 script = ExtResource("5_g7kw1")
+
+[node name="ActionCooldownTimer" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+
+[connection signal="timeout" from="ActionCooldownTimer" to="." method="_on_action_cooldown_timer_timeout"]

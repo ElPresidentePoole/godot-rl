@@ -16,6 +16,7 @@ const S_VisualProjectile: PackedScene = preload("res://scenes/visualprojectile.t
 @onready var player_mrpas: MRPAS = cellmap.build_mrpas_from_map()
 var player_seen_tiles: Array[Vector2] = [] # TODO
 var mob_mrpas_map: Dictionary = {}
+@onready var turn_count: int = 0
 
 func visualize_projectile(from: Vector2, to: Vector2) -> void:
 	""" spawns a node to go from "from" to "to".  uses absolute positioning! """
@@ -64,8 +65,7 @@ func spawn_mob(x: int, y: int, mob_key: String) -> void:
 	var cid: int = cellmap.get_cell_id(m.position)
 	astar.set_point_disabled(cid)
 	mob_mrpas_map[m] = cellmap.build_mrpas_from_map()
-	m.connect('request_to_attack', func(perp):
-		attack(perp, player))
+	m.connect('perform_game_action', _on_perform_game_action)
 	m.mortality.connect('died', func(poor_schmuck):
 		var cell_died_at = astar.get_closest_point(poor_schmuck.position, true)
 		poor_schmuck.queue_free()
@@ -131,6 +131,7 @@ func _ready() -> void:
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
 			spawn_mob(gx, gy, ['wizard', 'officer', 'guard'][randi() % 3])
 	update_player_fov(player.position)
+	player.hud.turn_label.text = 'Turn: {t}'.format({'t': turn_count})
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
@@ -154,29 +155,64 @@ func process_turn(player_state):
 	for m in mobs.get_children():
 		if not m.is_queued_for_deletion():
 			update_mob_fov(m)
-			m.do_turn_behavior(astar, mob_mrpas_map[m], cellmap, player_state)
+			m.do_turn_behavior(astar, mob_mrpas_map[m], cellmap, player_state, player)
 	update_player_fov(player_state['new_position'])
+	turn_count += 1
+	player.hud.turn_label.text = 'Turn: {t}'.format({'t': turn_count})
 
-func _on_player_request_to_move(dv):
-	dv *= cellmap.CELL_SIZE
-	var col_point = player.position+dv
-	if astar.is_point_disabled(cellmap.get_cell_id(col_point)):
-		var mob_bumped_into = find_mob_by_position(col_point)
-		if mob_bumped_into:
-			attack(player, mob_bumped_into)
-			process_turn({ 'new_position': player.position })
-			# wait an entire second before allowing us to "move" again, as move's delay is 0.1 seconds
-			player.ready_to_move = false
-			await get_tree().create_timer(0.5).timeout
-			player.ready_to_move = true
-	else:
-		player.move(dv)
-		process_turn({ 'new_position': player.position+dv })
+#func _on_player_request_to_move(dv):
+#	dv *= cellmap.CELL_SIZE
+#	var col_point = player.position+dv
+#	if astar.is_point_disabled(cellmap.get_cell_id(col_point)):
+#		var mob_bumped_into = find_mob_by_position(col_point)
+#		if mob_bumped_into:
+#			attack(player, mob_bumped_into)
+#			process_turn({ 'new_position': player.position })
+#			# wait an entire second before allowing us to "move" again, as move's delay is 0.1 seconds
+#			player.ready_to_move = false
+#			await get_tree().create_timer(0.5).timeout
+#			player.ready_to_move = true
+#	else:
+#		player.move(dv)
+#		process_turn({ 'new_position': player.position+dv })
+#
+#
+#func _on_player_fire_at_nearest_mob():
+#	# TODO: range
+#	if player.ready_to_move:
+#		var mobs_to_distance_map: Dictionary = {}
+#		for m in mobs.get_children():
+#			if player_mrpas.is_in_view(cellmap.world_pos_to_cell(m.position)):
+#				mobs_to_distance_map[m] = len(astar.get_point_path(astar.get_closest_point(m.position, true), astar.get_closest_point(player.position, true)))
+#		if len(mobs_to_distance_map) > 0:
+#			var closest_mob = mobs_to_distance_map.keys()[0]
+#			for m in mobs_to_distance_map:
+#				if mobs_to_distance_map[m] < mobs_to_distance_map[closest_mob]:
+#					closest_mob = m
+#			if mobs_to_distance_map[closest_mob] <= player.weapon.attack_range+1:
+#				attack(player, closest_mob)
+#				process_turn({'new_position': player.position})
+#			else:
+#				player.hud.log_container.add_entry('Out of range!')
+#		else:
+#			player.hud.log_container.add_entry('No one in sight!')
 
 
-func _on_player_fire_at_nearest_mob():
-	# TODO: range
-	if player.ready_to_move:
+func _on_perform_game_action(action, data):
+	var action_successful: bool = false
+	if data['actor'] == player and not player.ready_to_act:
+		return
+	if action == GameAction.Actions.ATTACK:
+		attack(data['actor'], data['victim'])
+		action_successful = true
+	elif action == GameAction.Actions.MOVE:
+		var pos_final: Vector2 = data['actor'].position + cellmap.cell_pos_to_world(data['dv'])
+		if astar.is_point_disabled(astar.get_closest_point(pos_final, true)): # TODO: may need to check if they're connected too!
+			player.hud.log_container.add_entry("I can't move there!")
+		else:
+			data['actor'].move(astar, cellmap, pos_final)
+			action_successful = true
+	elif action == GameAction.Actions.AIM:
 		var mobs_to_distance_map: Dictionary = {}
 		for m in mobs.get_children():
 			if player_mrpas.is_in_view(cellmap.world_pos_to_cell(m.position)):
@@ -188,8 +224,16 @@ func _on_player_fire_at_nearest_mob():
 					closest_mob = m
 			if mobs_to_distance_map[closest_mob] <= player.weapon.attack_range+1:
 				attack(player, closest_mob)
-				process_turn({'new_position': player.position})
+				player.emit_signal('perform_game_action', GameAction.Actions.ATTACK, { 'actor': player, 'victim': closest_mob })
+				action_successful = true
 			else:
 				player.hud.log_container.add_entry('Out of range!')
 		else:
 			player.hud.log_container.add_entry('No one in sight!')
+	elif action == GameAction.Actions.WAIT:
+		action_successful = true # I mean, what else is there to do?
+	
+	if action_successful and data['actor'] == player:
+		player.ready_to_act = false
+		player.action_cooldown_timer.start()
+		process_turn({ 'new_position': player.position })

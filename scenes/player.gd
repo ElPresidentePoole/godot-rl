@@ -8,16 +8,12 @@ extends Node2D
 @onready var hud: CanvasLayer = $HUDLayer
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
+@onready var action_cooldown_timer: Timer = $ActionCooldownTimer
 var mob_name: String = "Adventurer"
 
-# XXX: should there be a "player_state" function or something that returns stuff
-# like where the player is in CellMap turns and stuff?  maybe have a signal like
-# turn_taken(new_player_state)?
+signal perform_game_action(action: GameAction.Actions, data: Dictionary)
 
-signal request_to_move(dv: Vector2)
-signal fire_at_nearest_mob()
-
-var ready_to_move: bool = true
+var ready_to_act: bool = true
 var gold: int = 0
 var moving: Globals.MovementDirection = Globals.MovementDirection.NONE
 
@@ -41,7 +37,7 @@ func _ready() -> void:
 		hpl.text = build_hplabel_text())
 
 func handle_movement() -> void:
-	if not ready_to_move:
+	if not ready_to_act:
 		return
 		
 	var dv: Vector2 = Vector2()
@@ -57,7 +53,7 @@ func handle_movement() -> void:
 		dv = Vector2.ZERO
 
 	if dv != Vector2.ZERO:
-		emit_signal('request_to_move', dv)
+		emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 
 func pickup_items_below_me() -> void:
 	for item in here_area.get_overlapping_areas():
@@ -67,10 +63,8 @@ func pickup_items_below_me() -> void:
 		hud.gold_label.text = build_goldlabel_text()
 		hud.log_container.add_entry("You pick up {amount} gold.".format({'amount': item.value}))
 
-func move(dv: Vector2) -> void:
-	ready_to_move = false
-	await create_tween().tween_property(self, 'position', position+dv, 0.1).finished
-	ready_to_move = true
+func move(_astar: AStar2D, _cellmap: Node2D, dest: Vector2) -> void:
+	await create_tween().tween_property(self, 'position', dest, 0.1).finished
 	pickup_items_below_me()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -85,7 +79,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("fire_at_nearest_mob"):
 		# TODO: wait a bit, also we're spamming shots
 		# are we firing too fast or what?  we just insta-vaporize mobs
-		emit_signal('fire_at_nearest_mob')
+		emit_signal("perform_game_action", GameAction.Actions.AIM, {'actor': self})
 
 	if event.is_action_released("move_north") and moving == Globals.MovementDirection.NORTH \
 		or event.is_action_released("move_south") and moving == Globals.MovementDirection.SOUTH \
@@ -96,3 +90,7 @@ func _unhandled_input(event: InputEvent) -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	handle_movement()
+
+
+func _on_action_cooldown_timer_timeout():
+	ready_to_act = true

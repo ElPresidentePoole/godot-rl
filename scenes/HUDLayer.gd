@@ -2,6 +2,7 @@ extends CanvasLayer
 
 @onready var hp_label: Label = $Labels/HP
 @onready var gold_label: Label = $Labels/Gold
+@onready var turn_label: Label = $Labels/Turn
 @onready var log_container: ScrollContainer = $LogContainer
 
 # Called when the node enters the scene tree for the first time.

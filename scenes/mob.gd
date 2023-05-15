@@ -7,7 +7,8 @@ var mob_key: String
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
 @onready var label: Label = $Label
-signal request_to_attack(perp)
+
+signal perform_game_action(action: GameAction.Actions, data: Dictionary)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -49,24 +50,27 @@ func _physics_process(delta) -> void:
 #		astar.set_point_disabled(cellmap.get_cell_id(path[1]), true)
 #		await create_tween().tween_property(self, 'position', path[1], 0.1).finished
 
-func do_turn_behavior(astar: AStar2D, mrpas: MRPAS, cellmap: Node2D, new_player_state: Dictionary) -> void:
+func move(astar: AStar2D, cellmap: Node2D, dest: Vector2) -> void:
+	astar.set_point_disabled(cellmap.get_cell_id(position), false)
+	astar.set_point_disabled(cellmap.get_cell_id(dest), true)
+	await create_tween().tween_property(self, 'position', dest, 0.1).finished
+
+func do_turn_behavior(astar: AStar2D, mrpas: MRPAS, cellmap: Node2D, new_player_state: Dictionary, player: Node2D) -> void:
 	if mrpas.is_in_view(cellmap.world_pos_to_cell(new_player_state['new_position'])):
 		last_seen = new_player_state['new_position']
 		var closest: int = astar.get_closest_point(last_seen)
 		var path: PackedVector2Array = astar.get_point_path(cellmap.get_cell_id(position), closest)
-#		move(astar, cellmap, last_seen)
-		if len(path) > weapon.attack_range and path[1] != last_seen:
-			astar.set_point_disabled(cellmap.get_cell_id(position), false)
-			astar.set_point_disabled(cellmap.get_cell_id(path[1]), true)
-			await create_tween().tween_property(self, 'position', path[1], 0.1).finished
+		if len(path) > weapon.attack_range:
+			var dv: Vector2 = cellmap.world_pos_to_cell(path[1]-position) # yeah we're gonna convert this absolute position to a delta just to convert it back 🙃
+			emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 		elif last_seen in path.slice(1, weapon.attack_range):
-			emit_signal('request_to_attack', self)
+			emit_signal("perform_game_action", GameAction.Actions.ATTACK, {'actor': self, 'victim': player})
 	elif last_seen:
 		var closest: int = astar.get_closest_point(last_seen)
 		var path: PackedVector2Array = astar.get_point_path(cellmap.get_cell_id(position), closest)
 		if len(path) > 1 and path[1] != last_seen:
-			astar.set_point_disabled(cellmap.get_cell_id(position), false)
-			astar.set_point_disabled(cellmap.get_cell_id(path[1]), true)
-			await create_tween().tween_property(self, 'position', path[1], 0.1).finished
-#	elif last_seen != null and last_seen != cellmap.world_pos_to_cell(position):
-#		move(new_player_state['new_position'])
+			var dv: Vector2 = cellmap.world_pos_to_cell(path[1]-position)
+			emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
+			#astar.set_point_disabled(cellmap.get_cell_id(position), false)
+			#astar.set_point_disabled(cellmap.get_cell_id(path[1]), true)
+			#await create_tween().tween_property(self, 'position', path[1], 0.1).finished
