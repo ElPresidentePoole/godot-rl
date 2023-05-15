@@ -198,16 +198,14 @@ func process_turn(player_state):
 #			player.hud.log_container.add_entry('No one in sight!')
 
 
-func _on_perform_game_action(action, data):
+func _on_perform_game_action(action, data) -> void:
 	var action_successful: bool = false
-	if data['actor'] == player and not player.ready_to_act:
-		return
 	if action == GameAction.Actions.ATTACK:
 		attack(data['actor'], data['victim'])
 		action_successful = true
 	elif action == GameAction.Actions.MOVE:
 		var pos_final: Vector2 = data['actor'].position + cellmap.cell_pos_to_world(data['dv'])
-		if astar.is_point_disabled(astar.get_closest_point(pos_final, true)): # TODO: may need to check if they're connected too!
+		if astar.is_point_disabled(astar.get_closest_point(pos_final, true)): # TODO: may need to check if the points are connected too!
 			player.hud.log_container.add_entry("I can't move there!")
 		else:
 			data['actor'].move(astar, cellmap, pos_final)
