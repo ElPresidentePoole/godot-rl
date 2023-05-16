@@ -208,7 +208,7 @@ func _on_perform_game_action(action, data) -> void:
 		var rof: int = data['rof'] if 'rof' in data else 1
 		data['actor'].ready_to_act = false
 		for _bang in range(rof):
-			attack(data['actor'], data['victim'])
+			attack(data['actor'], data['victim']) # FIXME: rof > 1 means we're playing the audio for it a lot and it gets loud
 		for _bang in range(rof):
 			await visualize_projectile(data['actor'].position, data['victim'].position)
 			if rof > 1: await get_tree().create_timer(0.1).timeout
