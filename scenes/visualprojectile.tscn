@@ -7,6 +7,7 @@
 script = ExtResource("1_i7lfv")
 
 [node name="Label" type="Label" parent="."]
+visible = false
 modulate = Color(0.917647, 0.776471, 0, 1)
 anchors_preset = 8
 anchor_left = 0.5
@@ -23,3 +24,7 @@ theme = ExtResource("1_4fv5d")
 text = "*"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Line2D" type="Line2D" parent="."]
+width = 5.0
+default_color = Color(1, 1, 0, 1)

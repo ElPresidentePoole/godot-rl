@@ -6,9 +6,11 @@ const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 const S_Gold: PackedScene = preload("res://scenes/gold.tscn")
 const S_Gem: PackedScene = preload("res://scenes/gem.tscn")
 const S_VisualProjectile: PackedScene = preload("res://scenes/visualprojectile.tscn")
+const S_Stairs: PackedScene = preload("res://scenes/stairs.tscn")
 
 @onready var mobs: Node = $Mobs
 @onready var items: Node = $Items
+@onready var stairs: Node = $Stairs
 @onready var cellmap: CellMap = $CellMap
 @onready var astar: AStar2D = $CellMap.astar
 @onready var player: Node2D = $Player
@@ -17,6 +19,7 @@ const S_VisualProjectile: PackedScene = preload("res://scenes/visualprojectile.t
 var player_seen_tiles: Array[Vector2] = [] # TODO
 var mob_mrpas_map: Dictionary = {}
 @onready var turn_count: int = 0
+@onready var floor_count: int = 1
 
 func visualize_projectile(from: Vector2, to: Vector2) -> void:
 	""" spawns a node to go from "from" to "to".  uses absolute positioning! """
@@ -40,6 +43,12 @@ func visualize_projectile(from: Vector2, to: Vector2) -> void:
 	proj.dest = to
 	add_child.call_deferred(proj)
 	await proj.tree_exiting
+	
+func spawn_stairs(x: int, y: int) -> void:
+	var s = S_Stairs.instantiate()
+	s.position = Vector2(x, y) * cellmap.CELL_SIZE
+	stairs.add_child(s)
+	
 	
 func spawn_gem(x: int, y: int) -> void:
 	var g = S_Gem.instantiate()
@@ -110,12 +119,23 @@ func update_player_fov(new_position: Vector2) -> void:
 			i.show()
 		else:
 			i.hide()
+	for i in stairs.get_children():
+		var stairs_cell_pos: Vector2 = cellmap.world_pos_to_cell(i.position)
+		if player_mrpas.is_in_view(stairs_cell_pos):
+			i.show()
+		else:
+			i.hide()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	init_level()
+
+func init_level() -> void:
 	var leaves: Array = cellmap.root.get_leaves()
 	var spawn_room: Vector2 = leaves[0].get_room_center()
-	place_player(spawn_room.x, spawn_room.y) # spawn the player last so our FOV stuff hides the mob
+	place_player(spawn_room.x, spawn_room.y)
+	var stairs_room: Vector2 = leaves[1].get_room_center()
+	spawn_stairs(stairs_room.x, stairs_room.y)
 	for l in leaves:
 		if randf() < 0.15:
 			# +1/-2 to account for walls
@@ -134,6 +154,32 @@ func _ready() -> void:
 	update_player_fov(player.position)
 	player.hud.turn_label.text = 'Turn: {t}'.format({'t': turn_count})
 
+func new_level() -> void:
+	for m in mobs.get_children():
+		var cid: int = cellmap.get_cell_id(m.position)
+		mob_mrpas_map.erase(m)
+		m.queue_free()
+	for s in stairs.get_children():
+		s.queue_free()
+	for i in items.get_children():
+		i.queue_free() # TODO: there are way too many "category" nodes...should simplify this
+	cellmap.generate_map()
+	cellmap.generate_astar()
+	player_mrpas = cellmap.build_mrpas_from_map()
+	for c in cellmap.get_children():
+		c.hide() # reset our fov, or at least it's supposed to hide the cells again for our fov stuff FIXME
+	init_level()
+#		astar.set_point_disabled(cid, false)
+#		m.disconnect('perform_game_action', _on_perform_game_action)
+#		m.mortality.connect('died', func(poor_schmuck):
+#			var cell_died_at = astar.get_closest_point(poor_schmuck.position, true)
+#	#		poor_schmuck.queue_free()
+#			poor_schmuck.label.modulate = Color.BLANCHED_ALMOND
+#			astar.set_point_disabled(cell_died_at, false)
+#			mob_mrpas_map.erase(poor_schmuck)
+#			player.hud.log_container.add_entry('{name} has died!'.format({'name': poor_schmuck.mob_name}))
+#			)
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	pass
@@ -144,12 +190,13 @@ func find_mob_by_position(pos: Vector2) -> Node2D:
 			return m
 	return null
 
-func attack(perp: Node2D, victim: Node2D) -> void:
-	victim.mortality.take_damage(perp.weapon.attack_damage)
-	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
-	# TODO: attack_sound should probably be a property of Weapon.gd
-	perp.attack_sound.play()
-#	await visualize_projectile(perp.position, victim.position)
+func attack(perp: Node2D, victim: Node2D, rof: int) -> void:
+	for shot in range(rof):
+		victim.mortality.take_damage(perp.weapon.attack_damage)
+		player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
+	for shot in range(rof):
+		perp.attack_sound.play()
+		await visualize_projectile(perp.position, victim.position)
 
 func process_turn(player_state):
 	for m in mobs.get_children():
@@ -162,44 +209,6 @@ func process_turn(player_state):
 	turn_count += 1
 	player.hud.turn_label.text = 'Turn: {t}'.format({'t': turn_count})
 
-#func _on_player_request_to_move(dv):
-#	dv *= cellmap.CELL_SIZE
-#	var col_point = player.position+dv
-#	if astar.is_point_disabled(cellmap.get_cell_id(col_point)):
-#		var mob_bumped_into = find_mob_by_position(col_point)
-#		if mob_bumped_into:
-#			attack(player, mob_bumped_into)
-#			process_turn({ 'new_position': player.position })
-#			# wait an entire second before allowing us to "move" again, as move's delay is 0.1 seconds
-#			player.ready_to_move = false
-#			await get_tree().create_timer(0.5).timeout
-#			player.ready_to_move = true
-#	else:
-#		player.move(dv)
-#		process_turn({ 'new_position': player.position+dv })
-#
-#
-#func _on_player_fire_at_nearest_mob():
-#	# TODO: range
-#	if player.ready_to_move:
-#		var mobs_to_distance_map: Dictionary = {}
-#		for m in mobs.get_children():
-#			if player_mrpas.is_in_view(cellmap.world_pos_to_cell(m.position)):
-#				mobs_to_distance_map[m] = len(astar.get_point_path(astar.get_closest_point(m.position, true), astar.get_closest_point(player.position, true)))
-#		if len(mobs_to_distance_map) > 0:
-#			var closest_mob = mobs_to_distance_map.keys()[0]
-#			for m in mobs_to_distance_map:
-#				if mobs_to_distance_map[m] < mobs_to_distance_map[closest_mob]:
-#					closest_mob = m
-#			if mobs_to_distance_map[closest_mob] <= player.weapon.attack_range+1:
-#				attack(player, closest_mob)
-#				process_turn({'new_position': player.position})
-#			else:
-#				player.hud.log_container.add_entry('Out of range!')
-#		else:
-#			player.hud.log_container.add_entry('No one in sight!')
-
-
 func _on_perform_game_action(action, data) -> void:
 	if data['actor'] == player and (not player.ready_to_act or mobs.get_children().any(func(m): not m.ready_to_act)):
 		return
@@ -207,11 +216,7 @@ func _on_perform_game_action(action, data) -> void:
 	if action == GameAction.Actions.ATTACK:
 		var rof: int = data['rof'] if 'rof' in data else 1
 		data['actor'].ready_to_act = false
-		for _bang in range(rof):
-			attack(data['actor'], data['victim']) # FIXME: rof > 1 means we're playing the audio for it a lot and it gets loud
-		for _bang in range(rof):
-			await visualize_projectile(data['actor'].position, data['victim'].position)
-			if rof > 1: await get_tree().create_timer(0.1).timeout
+		attack(data['actor'], data['victim'], rof)
 		data['actor'].ready_to_act = true
 		# "Invalid set index 'ready_to_act' (on base: 'previously freed') with value of type 'bool'
 		action_successful = true
@@ -227,7 +232,7 @@ func _on_perform_game_action(action, data) -> void:
 	elif action == GameAction.Actions.AIM:
 		var mobs_to_distance_map: Dictionary = {}
 		for m in mobs.get_children():
-			if player_mrpas.is_in_view(cellmap.world_pos_to_cell(m.position)):
+			if player_mrpas.is_in_view(cellmap.world_pos_to_cell(m.position)) and m.mortality.is_alive():
 				mobs_to_distance_map[m] = len(astar.get_point_path(astar.get_closest_point(m.position, true), astar.get_closest_point(player.position, true)))
 		if len(mobs_to_distance_map) > 0:
 			var closest_mob = mobs_to_distance_map.keys()[0]
@@ -246,3 +251,7 @@ func _on_perform_game_action(action, data) -> void:
 	
 	if action_successful and data['actor'] == player:
 		process_turn({ 'new_position': player.position })
+
+func _on_player_stairs_down():
+	print_debug('stairs down')
+	new_level()

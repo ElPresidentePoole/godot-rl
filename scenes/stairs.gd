@@ -1,15 +1,14 @@
-extends Node
+extends Area2D
 
-class_name Weapon
-
-var attack_range: int
-var attack_damage: int
-var attack_verb: String
-var attack_rof: int
+var goes_down: bool
+@onready var label: Label = $Label
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	if goes_down:
+		label.text = '>'
+	else:
+		label.text = '<'
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

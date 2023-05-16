@@ -13,6 +13,7 @@ extends Node2D
 var mob_name: String = "Adventurer"
 
 signal perform_game_action(action: GameAction.Actions, data: Dictionary)
+signal stairs_down()
 
 var ready_to_act: bool = true
 var gold: int = 0
@@ -55,13 +56,16 @@ func handle_movement() -> void:
 		emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 
 func pickup_items_below_me() -> void:
+	# TODO: this should be split into like "handle triggers" and "pickup items" because our player may not want to pick up everything
 	var items: Array[Area2D] = here_area.get_overlapping_areas()
 	for item in items:
-		# TODO for now there's just gold and we don't need to check if the collider with this area 
-		item.queue_free()
-		gold += item.value
-		hud.gold_label.text = build_goldlabel_text()
-		hud.log_container.add_entry("You pick up {amount} gold.".format({'amount': item.value}))
+		if item.is_in_group('treasure'):
+			item.queue_free()
+			gold += item.value
+			hud.gold_label.text = build_goldlabel_text()
+			hud.log_container.add_entry("You pick up {amount} gold.".format({'amount': item.value}))
+		elif item.is_in_group('stairs'):
+			emit_signal('stairs_down')
 	if not items.is_empty():
 		treasure_sound.play()
 

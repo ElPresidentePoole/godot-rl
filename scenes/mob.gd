@@ -23,6 +23,7 @@ func _ready() -> void:
 	label.modulate = Color(mob_data['color'])
 	weapon.attack_range = mob_data['weapon']['range']
 	weapon.attack_damage = mob_data['weapon']['damage']
+	weapon.attack_rof = mob_data['weapon']['rof']
 	weapon.attack_verb = mob_data['weapon']['verb']
 	attack_sound.stream = Globals.sounds[mob_data['weapon']['sound']]
 	mortality.max_hp = mob_data['mortality']['max_hp']
@@ -68,7 +69,7 @@ func do_turn_behavior(astar: AStar2D, mrpas: MRPAS, cellmap: Node2D, new_player_
 			var dv: Vector2 = cellmap.world_pos_to_cell(path[1]-position) # yeah we're gonna convert this absolute position to a delta just to convert it back 🙃
 			emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 		elif last_seen in path.slice(1, weapon.attack_range):
-			emit_signal("perform_game_action", GameAction.Actions.ATTACK, {'actor': self, 'victim': player, 'rof': 5})
+			emit_signal("perform_game_action", GameAction.Actions.ATTACK, {'actor': self, 'victim': player, 'rof': weapon.attack_rof})
 	elif last_seen:
 		var closest: int = astar.get_closest_point(last_seen)
 		var path: PackedVector2Array = astar.get_point_path(cellmap.get_cell_id(position), closest)

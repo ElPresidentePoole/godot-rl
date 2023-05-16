@@ -73,6 +73,8 @@ func get_adjacent_cells_nsew(pos: Vector2) -> Array[Vector2]:
 	return adj_cells
 
 func populate_node_table() -> void:
+	node_table.clear()
+	
 	for cell in get_children():
 		node_table[cell.position] = cell
 
@@ -220,6 +222,9 @@ class Chunk: # this should probably be called BinaryNode or Chunk or something e
 			c.set_cell_type(Cell.CellType.FLOOR)
 
 func generate_map() -> void:
+	for c in get_children():
+		c.queue_free()
+	
 	for x in range(map_width):
 		for y in range(map_height):
 			var c: Cell = S_Cell.instantiate()

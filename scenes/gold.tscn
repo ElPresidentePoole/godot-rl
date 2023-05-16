@@ -6,7 +6,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0cw64"]
 size = Vector2(32, 32)
 
-[node name="gold" type="Area2D"]
+[node name="gold" type="Area2D" groups=["treasure"]]
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("1_e5jq5")

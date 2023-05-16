@@ -7,11 +7,12 @@
 		"weapon": {
 			"range": 4,
 			"damage": 4,
+			"rof": 1,
 			"verb": "shoots",
 			"sound": "gunshot"
 		},
 		"mortality": {
-			"max_hp": 6
+			"max_hp": 6,
 		}},
 	"wizard": {
 		"mob_name": "Nazi Occultist",
@@ -21,8 +22,9 @@
 		"weapon": {
 			"range": 6,
 			"damage": 2,
+			"rof": 1,
 			"verb": "zaps",
-			"sound": "zap"
+			"sound": "zap",
 		},
 		"mortality": {
 			"max_hp": 2
@@ -35,6 +37,7 @@
 		"weapon": {
 			"range": 6,
 			"damage": 5,
+			"rof": 3,
 			"verb": "blasts",
 			"sound": "gunshot"
 		},
