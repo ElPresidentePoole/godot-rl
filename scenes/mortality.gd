@@ -17,3 +17,6 @@ func take_damage(dh: int) -> void:
 	emit_signal('hurt') # check if dh is 0?
 	if self.hp <= 0:
 		emit_signal('died', self.mortal)
+
+func is_alive() -> bool:
+	return hp > 0

@@ -62,6 +62,7 @@ script = ExtResource("3_7ayhc")
 [node name="Labels" type="VBoxContainer" parent="HUDLayer"]
 offset_right = 40.0
 offset_bottom = 40.0
+theme = ExtResource("1_8d21e")
 
 [node name="HP" type="Label" parent="HUDLayer/Labels"]
 layout_mode = 2
@@ -85,6 +86,7 @@ grow_horizontal = 2
 grow_vertical = 0
 size_flags_horizontal = 0
 size_flags_vertical = 8
+theme = ExtResource("1_8d21e")
 script = ExtResource("3_8koru")
 
 [node name="EntryContainer" type="VBoxContainer" parent="HUDLayer/LogContainer"]
@@ -111,3 +113,5 @@ stream = ExtResource("7_huo4l")
 
 [node name="TreasureSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("7_fb8eb")
+
+[connection signal="hurt" from="Mortality" to="." method="_on_mortality_hurt"]

@@ -68,7 +68,7 @@ func do_turn_behavior(astar: AStar2D, mrpas: MRPAS, cellmap: Node2D, new_player_
 			var dv: Vector2 = cellmap.world_pos_to_cell(path[1]-position) # yeah we're gonna convert this absolute position to a delta just to convert it back 🙃
 			emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 		elif last_seen in path.slice(1, weapon.attack_range):
-			emit_signal("perform_game_action", GameAction.Actions.ATTACK, {'actor': self, 'victim': player})
+			emit_signal("perform_game_action", GameAction.Actions.ATTACK, {'actor': self, 'victim': player, 'rof': 5})
 	elif last_seen:
 		var closest: int = astar.get_closest_point(last_seen)
 		var path: PackedVector2Array = astar.get_point_path(cellmap.get_cell_id(position), closest)

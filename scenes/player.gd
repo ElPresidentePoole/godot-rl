@@ -33,9 +33,6 @@ func _ready() -> void:
 	weapon.attack_verb = 'shoots'
 	hud.hp_label.text = build_hplabel_text()
 	hud.gold_label.text = build_goldlabel_text()
-	mortality.connect('hurt', func():
-		var hpl = hud.hp_label
-		hpl.text = build_hplabel_text())
 #	attack_sound.sound
 
 func handle_movement() -> void:
@@ -95,3 +92,8 @@ func _unhandled_input(event: InputEvent) -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	handle_movement()
+
+
+func _on_mortality_hurt():
+	var hpl = hud.hp_label
+	hpl.text = build_hplabel_text()

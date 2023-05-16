@@ -68,7 +68,8 @@ func spawn_mob(x: int, y: int, mob_key: String) -> void:
 	m.connect('perform_game_action', _on_perform_game_action)
 	m.mortality.connect('died', func(poor_schmuck):
 		var cell_died_at = astar.get_closest_point(poor_schmuck.position, true)
-		poor_schmuck.queue_free()
+#		poor_schmuck.queue_free()
+		poor_schmuck.label.modulate = Color.BLANCHED_ALMOND
 		astar.set_point_disabled(cell_died_at, false)
 		mob_mrpas_map.erase(poor_schmuck)
 		player.hud.log_container.add_entry('{name} has died!'.format({'name': poor_schmuck.mob_name}))
@@ -148,14 +149,11 @@ func attack(perp: Node2D, victim: Node2D) -> void:
 	player.hud.log_container.add_entry("{perp} {verb} {victim} for {amount} damage.".format({'perp': perp.mob_name, 'verb': perp.weapon.attack_verb, 'victim': victim.mob_name, 'amount': perp.weapon.attack_damage}))
 	# TODO: attack_sound should probably be a property of Weapon.gd
 	perp.attack_sound.play()
-	await visualize_projectile(perp.position, victim.position)
-	# TODO: damage based on perp
-	# should this (below) be signal based?
-#	print_debug(victim.mortality.hp)
+#	await visualize_projectile(perp.position, victim.position)
 
 func process_turn(player_state):
 	for m in mobs.get_children():
-		if not m.is_queued_for_deletion():
+		if not m.is_queued_for_deletion() and m.mortality.is_alive():
 			m.ready_to_act = false
 			update_mob_fov(m)
 			m.do_turn_behavior(astar, mob_mrpas_map[m], cellmap, player_state, player)
@@ -207,8 +205,13 @@ func _on_perform_game_action(action, data) -> void:
 		return
 	var action_successful: bool = false
 	if action == GameAction.Actions.ATTACK:
+		var rof: int = data['rof'] if 'rof' in data else 1
 		data['actor'].ready_to_act = false
-		await attack(data['actor'], data['victim'])
+		for _bang in range(rof):
+			attack(data['actor'], data['victim'])
+		for _bang in range(rof):
+			await visualize_projectile(data['actor'].position, data['victim'].position)
+			if rof > 1: await get_tree().create_timer(0.1).timeout
 		data['actor'].ready_to_act = true
 		# "Invalid set index 'ready_to_act' (on base: 'previously freed') with value of type 'bool'
 		action_successful = true
@@ -233,7 +236,7 @@ func _on_perform_game_action(action, data) -> void:
 					closest_mob = m
 			if mobs_to_distance_map[closest_mob] <= player.weapon.attack_range+1:
 				player.emit_signal('perform_game_action', GameAction.Actions.ATTACK, { 'actor': player, 'victim': closest_mob })
-				action_successful = true
+#				action_successful = true
 			else:
 				player.hud.log_container.add_entry('Out of range!')
 		else:
