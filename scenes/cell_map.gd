@@ -10,6 +10,7 @@ var astar: AStar2D = AStar2D.new()
 var id_table: Dictionary = {} # Vector2 -> int
 var node_table: Dictionary = {} # Vector2 (position) -> Node2D
 var root: Chunk = null
+@onready var first_build: bool = true
 #var occupied: Array[Vector2]
 const CELL_SIZE: Vector2 = Vector2(32, 32)
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
@@ -222,17 +223,18 @@ class Chunk: # this should probably be called BinaryNode or Chunk or something e
 			c.set_cell_type(Cell.CellType.FLOOR)
 
 func generate_map() -> void:
-	for c in get_children():
-		c.queue_free()
-	
-	for x in range(map_width):
-		for y in range(map_height):
-			var c: Cell = S_Cell.instantiate()
-			c.position = Vector2(x, y) * CELL_SIZE
+	if first_build:
+		for x in range(map_width):
+			for y in range(map_height):
+				var c: Cell = S_Cell.instantiate()
+				c.position = Vector2(x, y) * CELL_SIZE
+				c.set_cell_type(Cell.CellType.WALL)
+				add_child(c)
+		
+		populate_node_table()
+	else:
+		for c in get_children():
 			c.set_cell_type(Cell.CellType.WALL)
-			add_child(c)
-
-	populate_node_table()
 
 	root = Chunk.new(self, Rect2(0, 0, map_width, map_height))
 

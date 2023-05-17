@@ -168,6 +168,7 @@ func new_level() -> void:
 	player_mrpas = cellmap.build_mrpas_from_map()
 	for c in cellmap.get_children():
 		c.hide() # reset our fov, or at least it's supposed to hide the cells again for our fov stuff FIXME
+	player_seen_tiles.clear()
 	init_level()
 #		astar.set_point_disabled(cid, false)
 #		m.disconnect('perform_game_action', _on_perform_game_action)
