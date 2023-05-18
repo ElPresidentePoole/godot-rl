@@ -230,8 +230,8 @@ func generate_map() -> void:
 				c.position = Vector2(x, y) * CELL_SIZE
 				c.set_cell_type(Cell.CellType.WALL)
 				add_child(c)
-		
 		populate_node_table()
+		first_build = false
 	else:
 		for c in get_children():
 			c.set_cell_type(Cell.CellType.WALL)

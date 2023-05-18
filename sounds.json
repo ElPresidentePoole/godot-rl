@@ -1,6 +1,0 @@
-{
-  "zap": "sfx/zap.wav",
-  "gunshot": "sfx/gunshot.wav",
-  "treasure": "sfx/pickupGold.wav",
-  "explosion": "sfx/explosion.wav",
-}

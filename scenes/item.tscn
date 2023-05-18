@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://ebbv4vets0kx"]
+[gd_scene load_steps=4 format=3 uid="uid://ebbv4vets0kx"]
 
 [ext_resource type="Script" path="res://scenes/item.gd" id="1_ty238"]
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_ym1ju"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_s0y22"]
+size = Vector2(32, 32)
 
 [node name="Item" type="Node2D"]
 script = ExtResource("1_ty238")
@@ -23,3 +26,10 @@ theme = ExtResource("1_ym1ju")
 text = "i"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource("RectangleShape2D_s0y22")

@@ -1,0 +1,6 @@
+{
+  "zap": "zap.wav",
+  "gunshot": "gunshot.wav",
+  "treasure": "pickupGold.wav",
+  "explosion": "explosion.wav",
+}

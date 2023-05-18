@@ -95,7 +95,11 @@ func update_player_fov(new_position: Vector2) -> void:
 	var player_cell_pos: Vector2 = cellmap.world_pos_to_cell(new_position)
 	player_mrpas.clear_field_of_view()
 	player_mrpas.compute_field_of_view(player_cell_pos, 8)
-	for c in cellmap.get_children():
+	var cells_c: Array[Node] = cellmap.get_children()
+	var mobs_c: Array[Node] = mobs.get_children()
+	var items_c: Array[Node] = items.get_children()
+	var stairs_c: Array[Node] = stairs.get_children()
+	for c in cells_c:
 		var cell_pos: Vector2 = cellmap.world_pos_to_cell(c.position)
 		if player_mrpas.is_in_view(cell_pos):
 			if not cell_pos in player_seen_tiles:
@@ -107,24 +111,12 @@ func update_player_fov(new_position: Vector2) -> void:
 			c.symbol.modulate = Color.DARK_RED
 		else:
 			c.hide()
-	for m in mobs.get_children():
-		var mob_cell_pos: Vector2 = cellmap.world_pos_to_cell(m.position)
-		if player_mrpas.is_in_view(mob_cell_pos):
-			m.show()
+	for entity in (mobs_c + items_c + stairs_c):
+		var entity_cell_pos: Vector2 = cellmap.world_pos_to_cell(entity.position)
+		if player_mrpas.is_in_view(entity_cell_pos):
+			entity.show()
 		else:
-			m.hide()
-	for i in items.get_children():
-		var item_cell_pos: Vector2 = cellmap.world_pos_to_cell(i.position)
-		if player_mrpas.is_in_view(item_cell_pos):
-			i.show()
-		else:
-			i.hide()
-	for i in stairs.get_children():
-		var stairs_cell_pos: Vector2 = cellmap.world_pos_to_cell(i.position)
-		if player_mrpas.is_in_view(stairs_cell_pos):
-			i.show()
-		else:
-			i.hide()
+			entity.hide()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -136,7 +128,7 @@ func init_level() -> void:
 	place_player(spawn_room.x, spawn_room.y)
 	var stairs_room: Vector2 = leaves[1].get_room_center()
 	spawn_stairs(stairs_room.x, stairs_room.y)
-	for l in leaves:
+	for l in leaves.slice(1):
 		if randf() < 0.15:
 			# +1/-2 to account for walls
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
@@ -153,6 +145,7 @@ func init_level() -> void:
 			spawn_mob(gx, gy, ['wizard', 'officer', 'guard'][randi() % 3])
 	update_player_fov(player.position)
 	player.hud.turn_label.text = 'Turn: {t}'.format({'t': turn_count})
+	player.hud.floor_label.text = 'Floor: {f}'.format({'f': floor_count})
 
 func new_level() -> void:
 	for m in mobs.get_children():
@@ -167,8 +160,10 @@ func new_level() -> void:
 	cellmap.generate_astar()
 	player_mrpas = cellmap.build_mrpas_from_map()
 	for c in cellmap.get_children():
-		c.hide() # reset our fov, or at least it's supposed to hide the cells again for our fov stuff FIXME
+		c.hide()
 	player_seen_tiles.clear()
+	floor_count += 1
+	player.hud.floor_label.text = 'Floor: {f}'.format({'f': floor_count})
 	init_level()
 #		astar.set_point_disabled(cid, false)
 #		m.disconnect('perform_game_action', _on_perform_game_action)
@@ -217,7 +212,7 @@ func _on_perform_game_action(action, data) -> void:
 	if action == GameAction.Actions.ATTACK:
 		var rof: int = data['rof'] if 'rof' in data else 1
 		data['actor'].ready_to_act = false
-		attack(data['actor'], data['victim'], rof)
+		await attack(data['actor'], data['victim'], rof) # fixes crashing when changing levels during attack anim
 		data['actor'].ready_to_act = true
 		# "Invalid set index 'ready_to_act' (on base: 'previously freed') with value of type 'bool'
 		action_successful = true
@@ -227,6 +222,7 @@ func _on_perform_game_action(action, data) -> void:
 			player.hud.log_container.add_entry("I can't move there!")
 		else:
 			data['actor'].ready_to_act = false
+			# does this await break anything else? getting close to the deadline here and it fixed the attack animation crash when changing levels while being shot at
 			await data['actor'].move(astar, cellmap, pos_final)
 			data['actor'].ready_to_act = true
 			action_successful = true
@@ -254,5 +250,4 @@ func _on_perform_game_action(action, data) -> void:
 		process_turn({ 'new_position': player.position })
 
 func _on_player_stairs_down():
-	print_debug('stairs down')
 	new_level()
