@@ -60,7 +60,8 @@ fire_at_nearest_mob={
 [layer_names]
 
 2d_physics/layer_1="obstacles"
-2d_physics/layer_2="triggers"
+2d_physics/layer_2="pickups"
+2d_physics/layer_3="triggers"
 
 [rendering]
 

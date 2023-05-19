@@ -4,10 +4,11 @@ extends Node2D
 @onready var s: RayCast2D = $S
 @onready var e: RayCast2D = $E
 @onready var w: RayCast2D = $W
-@onready var here_area: Area2D = $PickupArea
+@onready var here_area: Area2D = $HereArea
 @onready var hud: CanvasLayer = $HUDLayer
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
+@onready var inventory: Node = $Inventory
 @onready var attack_sound: AudioStreamPlayer = $AttackSound
 @onready var treasure_sound: AudioStreamPlayer = $TreasureSound
 var mob_name: String = "Adventurer"
@@ -55,23 +56,31 @@ func handle_movement() -> void:
 	if dv != Vector2.ZERO:
 		emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 
-func pickup_items_below_me() -> void:
-	# TODO: this should be split into like "handle triggers" and "pickup items" because our player may not want to pick up everything
-	var items: Array[Area2D] = here_area.get_overlapping_areas()
-	for item in items:
-		if item.is_in_group('treasure'):
-			item.queue_free()
-			gold += item.value
+func pickup_items_below_me(areas_colliding: Array[Area2D]) -> void:
+	for a in areas_colliding:
+		#if a.is_in_group('stairs'): # TODO: make this require a keypress than being automatic
+			#emit_signal('stairs_down')
+		if a.has_node('Treasure'):
+			a.queue_free()
+			gold += a.get_node('Treasure').value
 			hud.gold_label.text = build_goldlabel_text()
-			hud.log_container.add_entry("You pick up {amount} gold.".format({'amount': item.value}))
-		elif item.is_in_group('stairs'):
-			emit_signal('stairs_down')
-	if not items.is_empty():
+			hud.log_container.add_entry("You pick up {amount} gold.".format({'amount': a.get_node('Treasure').value}))
+		else:
+			hud.log_container.add_entry("You pick up the {item}.".format({'item': a.item.item_name}))
+			a.item.reparent(self.inventory)
+			a.queue_free()
+	if not areas_colliding.is_empty():
 		treasure_sound.play()
 
 func move(_astar: AStar2D, _cellmap: Node2D, dest: Vector2) -> void:
 	await create_tween().tween_property(self, 'position', dest, 0.1).finished
-	pickup_items_below_me()
+
+	var colliders: Array[Area2D] = here_area.get_overlapping_areas()
+	if colliders.any(func (e):
+		e.is_in_group('stairs')):
+		emit_signal('stairs')
+	else:
+		pickup_items_below_me(colliders)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("move_north"):

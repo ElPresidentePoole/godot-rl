@@ -11,7 +11,7 @@ script = ExtResource("1_y36ka")
 
 [node name="Mobs" type="Node" parent="."]
 
-[node name="Items" type="Node" parent="."]
+[node name="Pickups" type="Node" parent="."]
 
 [node name="Stairs" type="Node" parent="."]
 

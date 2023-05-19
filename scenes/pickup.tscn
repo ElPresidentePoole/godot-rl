@@ -1,16 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://c86rb8gjn7v6g"]
+[gd_scene load_steps=4 format=3 uid="uid://doxhcsiex36n7"]
 
-[ext_resource type="Script" path="res://scenes/gold.gd" id="1_e5jq5"]
-[ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="2_d737a"]
+[ext_resource type="Script" path="res://scenes/pickup.gd" id="1_k0e3o"]
+[ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="2_3kcr6"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0cw64"]
 size = Vector2(32, 32)
 
-[node name="gold" type="Area2D" groups=["treasure"]]
+[node name="pickup" type="Area2D" groups=["treasure"]]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("1_e5jq5")
-value = 5
+script = ExtResource("1_k0e3o")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_0cw64")
@@ -28,7 +27,7 @@ offset_right = 20.0
 offset_bottom = 17.5
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_d737a")
+theme = ExtResource("2_3kcr6")
 text = "$"
 horizontal_alignment = 1
 vertical_alignment = 1

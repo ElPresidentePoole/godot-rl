@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bt68t018supmp"]
+
+[ext_resource type="Script" path="res://scenes/treasure.gd" id="1_ogrj8"]
+
+[node name="Treasure" type="Node"]
+script = ExtResource("1_ogrj8")

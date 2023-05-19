@@ -3,13 +3,13 @@ extends Node2D
 const S_Player: PackedScene = preload("res://scenes/player.tscn")
 const S_Mob: PackedScene = preload("res://scenes/mob.tscn")
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
-const S_Gold: PackedScene = preload("res://scenes/gold.tscn")
-const S_Gem: PackedScene = preload("res://scenes/gem.tscn")
+const S_Pickup: PackedScene = preload("res://scenes/pickup.tscn")
+const S_Item: PackedScene = preload("res://scenes/item.tscn")
 const S_VisualProjectile: PackedScene = preload("res://scenes/visualprojectile.tscn")
 const S_Stairs: PackedScene = preload("res://scenes/stairs.tscn")
 
 @onready var mobs: Node = $Mobs
-@onready var items: Node = $Items
+@onready var pickups: Node = $Pickups
 @onready var stairs: Node = $Stairs
 @onready var cellmap: CellMap = $CellMap
 @onready var astar: AStar2D = $CellMap.astar
@@ -50,17 +50,13 @@ func spawn_stairs(x: int, y: int) -> void:
 	stairs.add_child(s)
 	
 	
-func spawn_gem(x: int, y: int) -> void:
-	var g = S_Gem.instantiate()
-	$Items.add_child(g)
-	# g.hide() # I could just have update_player_fov wait for this to spawn first but shouldn't these be hidden at first by default anyways?
-	g.position = Vector2(x, y) * cellmap.CELL_SIZE
-
-func spawn_gold(x: int, y: int) -> void:
-	var g = S_Gold.instantiate()
-	$Items.add_child(g)
-	# g.hide() # I could just have update_player_fov wait for this to spawn first but shouldn't these be hidden at first by default anyways?
-	g.position = Vector2(x, y) * cellmap.CELL_SIZE
+func spawn_pickup(x: int, y: int) -> void:
+	var p = S_Pickup.instantiate()
+	print_debug(x, ', ', y)
+	#p.position = Vector2(x, y) * cellmap.CELL_SIZE
+	p.position = Vector2(x, y) * cellmap.CELL_SIZE
+	p.item_key = 'medkit'
+	pickups.add_child(p)
 
 func place_player(x: int, y: int) -> void:
 	""" Places a player somewhere and then updates fov """
@@ -97,7 +93,7 @@ func update_player_fov(new_position: Vector2) -> void:
 	player_mrpas.compute_field_of_view(player_cell_pos, 8)
 	var cells_c: Array[Node] = cellmap.get_children()
 	var mobs_c: Array[Node] = mobs.get_children()
-	var items_c: Array[Node] = items.get_children()
+	var pickups_c: Array[Node] = pickups.get_children()
 	var stairs_c: Array[Node] = stairs.get_children()
 	for c in cells_c:
 		var cell_pos: Vector2 = cellmap.world_pos_to_cell(c.position)
@@ -111,7 +107,7 @@ func update_player_fov(new_position: Vector2) -> void:
 			c.symbol.modulate = Color.DARK_RED
 		else:
 			c.hide()
-	for entity in (mobs_c + items_c + stairs_c):
+	for entity in (mobs_c + pickups_c + stairs_c):
 		var entity_cell_pos: Vector2 = cellmap.world_pos_to_cell(entity.position)
 		if player_mrpas.is_in_view(entity_cell_pos):
 			entity.show()
@@ -129,16 +125,11 @@ func init_level() -> void:
 	var stairs_room: Vector2 = leaves[1].get_room_center()
 	spawn_stairs(stairs_room.x, stairs_room.y)
 	for l in leaves.slice(1):
-		if randf() < 0.15:
+		if randf() < 1:
 			# +1/-2 to account for walls
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
-			spawn_gem(gx, gy)
-		if randf() < 0.35:
-			# +1/-2 to account for walls
-			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
-			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
-			spawn_gold(gx, gy)
+			spawn_pickup(gx, gy)
 		if randf() < 0.5:
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
@@ -154,8 +145,8 @@ func new_level() -> void:
 		m.queue_free()
 	for s in stairs.get_children():
 		s.queue_free()
-	for i in items.get_children():
-		i.queue_free() # TODO: there are way too many "category" nodes...should simplify this
+	for p in pickups.get_children():
+		p.queue_free() # TODO: there are way too many "category" nodes...should simplify this
 	cellmap.generate_map()
 	cellmap.generate_astar()
 	player_mrpas = cellmap.build_mrpas_from_map()

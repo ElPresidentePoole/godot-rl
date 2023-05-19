@@ -1,6 +1,7 @@
-extends Node2D
+extends Node
 
-@export var value: int
+class_name Treasure
+var value: int
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

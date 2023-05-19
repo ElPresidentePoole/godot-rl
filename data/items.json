@@ -1,0 +1,19 @@
+{
+    "medkit": {
+        "item_name": "Medkit",
+        "symbol": "+",
+        "color": "#ff0000",
+    },
+    "mp40": {
+        "item_name": "MP-40",
+        "symbol": "=",
+        "color": "#808080",
+        "weapon": {
+            "range": 4,
+            "damage": 3,
+            "rof": 5,
+            "verb": "shoots",
+            "sound": "gunshot",
+        },
+    },
+}
