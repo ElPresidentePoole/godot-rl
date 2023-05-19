@@ -1,4 +1,19 @@
 #+title: Design
 
+* Functionality
+#+BEGIN_SRC gdscript
+extends Node
+
+class_name Action
+
+var actor: Node
+
+func _init(actor) -> void:
+	pass
+
+func perform() -> Dictionary: # TODO ActionResult:
+	pass
+#+END_SRC
+
 * Viscera ideas
 ** Ascii characters fly off into pieces when killed
