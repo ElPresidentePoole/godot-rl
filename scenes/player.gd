@@ -27,6 +27,9 @@ func build_hplabel_text() -> String:
 func build_goldlabel_text() -> String:
 	return "Gold: {au}".format({'au': gold})
 
+func build_inventoryspacelabel_text() -> String:
+	return "Inventory: {used}/26".format({'used': inventory.get_child_count()})
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	mortality.max_hp = 10
@@ -36,6 +39,7 @@ func _ready() -> void:
 	weapon.attack_verb = 'shoots'
 	hud.hp_label.text = build_hplabel_text()
 	hud.gold_label.text = build_goldlabel_text()
+	hud.inventory_label.text = build_inventoryspacelabel_text()
 #	attack_sound.sound
 
 func handle_movement() -> void:
@@ -58,6 +62,7 @@ func handle_movement() -> void:
 		emit_signal("perform_game_action", GameAction.Actions.MOVE, {'actor': self, 'dv': dv})
 
 func pickup_items_below_me(areas_colliding: Array[Area2D]) -> void:
+	var picked_up: bool = false
 	for a in areas_colliding:
 		# TODO: choose what to pickup + inventory menu
 		# XXX: maybe it should be pickups.json with an item sub-dict rather than all of them being "items" with special cases?
@@ -66,12 +71,15 @@ func pickup_items_below_me(areas_colliding: Array[Area2D]) -> void:
 			gold += a.get_node('Treasure').value
 			hud.gold_label.text = build_goldlabel_text()
 			hud.log_container.add_entry("You pick up {amount} gold.".format({'amount': a.get_node('Treasure').value}))
-		else:
+			picked_up = true
+		elif inventory.get_child_count() < 26:
 			hud.log_container.add_entry("You pick up the {item}.".format({'item': a.item.item_name}))
 			a.item.reparent(self.inventory)
 			a.queue_free()
-	if not areas_colliding.is_empty():
+			picked_up = true
+	if picked_up:
 		treasure_sound.play()
+		hud.inventory_label.text = build_inventoryspacelabel_text()
 
 func move(_astar: AStar2D, _cellmap: Node2D, dest: Vector2) -> void:
 	await create_tween().tween_property(self, 'position', dest, 0.1).finished

@@ -90,6 +90,10 @@ text = "Turn: ?"
 layout_mode = 2
 text = "Floor: ?"
 
+[node name="InventorySpace" type="Label" parent="HUDLayer/Labels"]
+layout_mode = 2
+text = "Inventory: ?/26"
+
 [node name="LogContainer" type="ScrollContainer" parent="HUDLayer"]
 anchors_preset = 12
 anchor_top = 1.0
