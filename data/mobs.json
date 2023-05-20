@@ -12,9 +12,8 @@
 			"sound": "gunshot"
 		},
 		"mortality": {
-			"max_hp": 6,
-		}
-	},
+			"max_hp": 6
+		}},
 	"wizard": {
 		"mob_name": "Nazi Wizard",
 		"vision_range": 7,
@@ -25,7 +24,7 @@
 			"damage": 2,
 			"rof": 1,
 			"verb": "zaps",
-			"sound": "zap",
+			"sound": "zap"
 		},
 		"mortality": {
 			"max_hp": 2
@@ -44,5 +43,5 @@
 		},
 		"mortality": {
 			"max_hp": 8
-		}},
+		}}
 }
