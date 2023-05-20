@@ -47,13 +47,12 @@ func visualize_projectile(from: Vector2, to: Vector2) -> void:
 func spawn_stairs(x: int, y: int) -> void:
 	var s = S_Stairs.instantiate()
 	s.position = Vector2(x, y) * cellmap.CELL_SIZE
+	s.goes_down = true # TODO: stairs_up
 	stairs.add_child(s)
 	
 	
 func spawn_pickup(x: int, y: int) -> void:
 	var p = S_Pickup.instantiate()
-	print_debug(x, ', ', y)
-	#p.position = Vector2(x, y) * cellmap.CELL_SIZE
 	p.position = Vector2(x, y) * cellmap.CELL_SIZE
 	p.item_key = 'medkit'
 	pickups.add_child(p)

@@ -4,7 +4,8 @@ extends Node2D
 @onready var s: RayCast2D = $S
 @onready var e: RayCast2D = $E
 @onready var w: RayCast2D = $W
-@onready var here_area: Area2D = $HereArea
+@onready var pickup_check_area: Area2D = $PickupCheckArea
+@onready var stairs_check_area: Area2D = $StairsCheckArea
 @onready var hud: CanvasLayer = $HUDLayer
 @onready var mortality: Mortality = $Mortality
 @onready var weapon: Weapon = $Weapon
@@ -58,8 +59,8 @@ func handle_movement() -> void:
 
 func pickup_items_below_me(areas_colliding: Array[Area2D]) -> void:
 	for a in areas_colliding:
-		#if a.is_in_group('stairs'): # TODO: make this require a keypress than being automatic
-			#emit_signal('stairs_down')
+		# TODO: choose what to pickup + inventory menu
+		# XXX: maybe it should be pickups.json with an item sub-dict rather than all of them being "items" with special cases?
 		if a.has_node('Treasure'):
 			a.queue_free()
 			gold += a.get_node('Treasure').value
@@ -75,13 +76,6 @@ func pickup_items_below_me(areas_colliding: Array[Area2D]) -> void:
 func move(_astar: AStar2D, _cellmap: Node2D, dest: Vector2) -> void:
 	await create_tween().tween_property(self, 'position', dest, 0.1).finished
 
-	var colliders: Array[Area2D] = here_area.get_overlapping_areas()
-	if colliders.any(func (e):
-		e.is_in_group('stairs')):
-		emit_signal('stairs')
-	else:
-		pickup_items_below_me(colliders)
-
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("move_north"):
 		moving = Globals.MovementDirection.NORTH
@@ -92,9 +86,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("move_west"):
 		moving = Globals.MovementDirection.WEST
 	elif event.is_action_pressed("fire_at_nearest_mob"):
-		# TODO: wait a bit, also we're spamming shots
-		# are we firing too fast or what?  we just insta-vaporize mobs
 		emit_signal("perform_game_action", GameAction.Actions.AIM, {'actor': self})
+	elif event.is_action_pressed("go_down_stairs"):
+		var available_stairs: Array[Area2D] = stairs_check_area.get_overlapping_areas()
+		if available_stairs.any(func(stair): return stair.goes_down): emit_signal('stairs_down')
+		# if available_stairs.any(func(stair): return not stair.goes_down): emit_signal('stairs_down')
+	elif event.is_action_pressed("grab_pickup"):
+		var available_pickups: Array[Area2D] = pickup_check_area.get_overlapping_areas()
+		if available_pickups: pickup_items_below_me(available_pickups)
 
 	if event.is_action_released("move_north") and moving == Globals.MovementDirection.NORTH \
 		or event.is_action_released("move_south") and moving == Globals.MovementDirection.SOUTH \
