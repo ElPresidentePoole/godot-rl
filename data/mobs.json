@@ -13,9 +13,10 @@
 		},
 		"mortality": {
 			"max_hp": 6,
-		}},
+		}
+	},
 	"wizard": {
-		"mob_name": "Nazi Occultist",
+		"mob_name": "Nazi Wizard",
 		"vision_range": 7,
 		"symbol": "w",
 		"color": "#3399ff",
