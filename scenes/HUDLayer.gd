@@ -5,6 +5,7 @@ extends CanvasLayer
 @onready var turn_label: Label = $Labels/Turn
 @onready var floor_label: Label = $Labels/Floor
 @onready var inventory_label: Label = $Labels/InventorySpace
+@onready var inventory_panel: Panel = $InventoryPanel
 @onready var curtains: Label = $Labels/Floor
 @onready var log_container: ScrollContainer = $LogContainer
 

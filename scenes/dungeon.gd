@@ -51,10 +51,10 @@ func spawn_stairs(x: int, y: int) -> void:
 	stairs.add_child(s)
 	
 	
-func spawn_pickup(x: int, y: int) -> void:
+func spawn_pickup(x: int, y: int, pickup_key: String) -> void:
 	var p = S_Pickup.instantiate()
 	p.position = Vector2(x, y) * cellmap.CELL_SIZE
-	p.item_key = 'medkit'
+	p.pickup_key = pickup_key
 	pickups.add_child(p)
 
 func place_player(x: int, y: int) -> void:
@@ -124,11 +124,21 @@ func init_level() -> void:
 	var stairs_room: Vector2 = leaves[1].get_room_center()
 	spawn_stairs(stairs_room.x, stairs_room.y)
 	for l in leaves.slice(1):
-		if randf() < 1:
+		if randf() < 0.1:
 			# +1/-2 to account for walls
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
-			spawn_pickup(gx, gy)
+			spawn_pickup(gx, gy, 'goldcoins')
+		if randf() < 0.2:
+			# +1/-2 to account for walls
+			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
+			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
+			spawn_pickup(gx, gy, 'medkit')
+		if randf() < 0.2:
+			# +1/-2 to account for walls
+			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
+			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
+			spawn_pickup(gx, gy, 'mp40')
 		if randf() < 0.5:
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
@@ -204,7 +214,6 @@ func _on_perform_game_action(action, data) -> void:
 		data['actor'].ready_to_act = false
 		await attack(data['actor'], data['victim'], rof) # fixes crashing when changing levels during attack anim
 		data['actor'].ready_to_act = true
-		# "Invalid set index 'ready_to_act' (on base: 'previously freed') with value of type 'bool'
 		action_successful = true
 	elif action == GameAction.Actions.MOVE:
 		var pos_final: Vector2 = data['actor'].position + cellmap.cell_pos_to_world(data['dv'])

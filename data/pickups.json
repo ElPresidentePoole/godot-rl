@@ -1,0 +1,34 @@
+{
+    "medkit": {
+        "item_name": "Medkit",
+        "symbol": "+",
+        "color": "#00ff00",
+        "item": {
+            "use": {
+                "heal": 5
+            }
+        }
+    },
+    "mp40": {
+        "item_name": "MP-40",
+        "symbol": "=",
+        "color": "#808080",
+        "item": {
+            "weapon": {
+                "range": 4,
+                "damage": 3,
+                "rof": 5,
+                "verb": "shoots",
+                "sound": "gunshot"
+            }
+        }
+    },
+    "goldcoins": {
+        "item_name": "Gold Coins",
+        "symbol": "$",
+        "color": "#ffff00",
+        "treasure": {
+            "value": 5
+        }
+    }
+}

@@ -2,9 +2,11 @@ extends Node
 
 # XXX: maybe this *does* belong in Player.gd?  No one else needs it.
 
+const ALPHABET: String = 'abcdefghijklmnopqrstuvwxyz'
+
 @onready var sounds: Dictionary = load_sounds()
 @onready var beastiary: Dictionary = load_mobs()
-@onready var armory: Dictionary = load_items()
+@onready var armory: Dictionary = load_pickups()
 
 enum MovementDirection {
 	NORTH,
@@ -18,8 +20,8 @@ func load_mobs() -> Dictionary:
 	var file: FileAccess = FileAccess.open("res://data/mobs.json", FileAccess.READ)
 	return JSON.parse_string(file.get_as_text())
 	
-func load_items() -> Dictionary:
-	var file: FileAccess = FileAccess.open("res://data/items.json", FileAccess.READ)
+func load_pickups() -> Dictionary:
+	var file: FileAccess = FileAccess.open("res://data/pickups.json", FileAccess.READ)
 	return JSON.parse_string(file.get_as_text())
 
 func load_sounds() -> Dictionary:

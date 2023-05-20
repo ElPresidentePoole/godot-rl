@@ -16,6 +16,7 @@ var mob_name: String = "Adventurer"
 
 signal perform_game_action(action: GameAction.Actions, data: Dictionary)
 signal stairs_down()
+signal obtained_new_item(item_name: String, item_occupying_slot: int)
 
 var ready_to_act: bool = true
 var gold: int = 0
@@ -64,8 +65,6 @@ func handle_movement() -> void:
 func pickup_items_below_me(areas_colliding: Array[Area2D]) -> void:
 	var picked_up: bool = false
 	for a in areas_colliding:
-		# TODO: choose what to pickup + inventory menu
-		# XXX: maybe it should be pickups.json with an item sub-dict rather than all of them being "items" with special cases?
 		if a.has_node('Treasure'):
 			a.queue_free()
 			gold += a.get_node('Treasure').value
@@ -75,6 +74,7 @@ func pickup_items_below_me(areas_colliding: Array[Area2D]) -> void:
 		elif inventory.get_child_count() < 26:
 			hud.log_container.add_entry("You pick up the {item}.".format({'item': a.item.item_name}))
 			a.item.reparent(self.inventory)
+			emit_signal('obtained_new_item', a.item.item_name, inventory.get_child_count())
 			a.queue_free()
 			picked_up = true
 	if picked_up:
@@ -93,15 +93,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		moving = Globals.MovementDirection.EAST
 	elif event.is_action_pressed("move_west"):
 		moving = Globals.MovementDirection.WEST
-	elif event.is_action_pressed("fire_at_nearest_mob"):
+	elif event.is_action_pressed("fire_at_nearest_mob") and ready_to_act:
 		emit_signal("perform_game_action", GameAction.Actions.AIM, {'actor': self})
-	elif event.is_action_pressed("go_down_stairs"):
+	elif event.is_action_pressed("go_down_stairs") and ready_to_act:
 		var available_stairs: Array[Area2D] = stairs_check_area.get_overlapping_areas()
 		if available_stairs.any(func(stair): return stair.goes_down): emit_signal('stairs_down')
-		# if available_stairs.any(func(stair): return not stair.goes_down): emit_signal('stairs_down')
-	elif event.is_action_pressed("grab_pickup"):
+	elif event.is_action_pressed("grab_pickup") and ready_to_act:
 		var available_pickups: Array[Area2D] = pickup_check_area.get_overlapping_areas()
 		if available_pickups: pickup_items_below_me(available_pickups)
+	elif event.is_action_pressed("view_inventory") and ready_to_act:
+		hud.inventory_panel.visible = not hud.inventory_panel.visible
 
 	if event.is_action_released("move_north") and moving == Globals.MovementDirection.NORTH \
 		or event.is_action_released("move_south") and moving == Globals.MovementDirection.SOUTH \

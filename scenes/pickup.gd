@@ -1,18 +1,27 @@
 extends Node2D
 
 const S_Item = preload('res://scenes/item.tscn')
+const S_Treasure = preload('res://scenes/treasure.tscn')
+const S_Use = preload('res://scenes/use.tscn')
 
 @onready var symbol: Label = $Label
-var item_key: String
+var pickup_key: String
+var treasure: Node
 var item: Node
+var use: Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	symbol.text = Globals.armory[item_key]['symbol']
-	symbol.modulate = Color(Globals.armory[item_key]['color'])
-	item = S_Item.instantiate()
-	item.item_key = item_key
-	add_child(item)
+	symbol.text = Globals.armory[pickup_key]['symbol']
+	symbol.modulate = Color(Globals.armory[pickup_key]['color'])
+	if Globals.armory[pickup_key].has('treasure'):
+		treasure = S_Treasure.instantiate()
+		treasure.value = Globals.armory[pickup_key]['treasure']['value']
+		add_child(treasure)
+	elif Globals.armory[pickup_key].has('item'):
+		item = S_Item.instantiate()
+		item.item_key = pickup_key
+		add_child(item)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
