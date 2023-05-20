@@ -142,7 +142,8 @@ func init_level() -> void:
 		if randf() < 0.5:
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
-			spawn_mob(gx, gy, ['wizard', 'officer', 'guard'][randi() % 3])
+			#spawn_mob(gx, gy, ['wizard', 'officer', 'guard'][randi() % 3])
+			spawn_mob(gx, gy, 'mechaphilippe')
 	update_player_fov(player.position)
 	player.hud.turn_label.text = 'Turn: {t}'.format({'t': turn_count})
 	player.hud.floor_label.text = 'Floor: {f}'.format({'f': floor_count})
