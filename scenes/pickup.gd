@@ -2,13 +2,11 @@ extends Node2D
 
 const S_Item = preload('res://scenes/item.tscn')
 const S_Treasure = preload('res://scenes/treasure.tscn')
-const S_Use = preload('res://scenes/use.tscn')
 
 @onready var symbol: Label = $Label
 var pickup_key: String
 var treasure: Node
 var item: Node
-var use: Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

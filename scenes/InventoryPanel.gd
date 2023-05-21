@@ -11,6 +11,6 @@ func _process(delta):
 	pass
 
 func _on_player_obtained_new_item(item_name, item_occupying_slot):
-	var l: Label = Label.new()
+	var l: Button = Button.new()
 	l.text = '{letter}) {name}'.format({'letter': Globals.ALPHABET[item_occupying_slot-1], 'name': item_name})
 	item_labels.add_child(l)

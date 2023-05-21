@@ -3,7 +3,7 @@
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_v6upp"]
 [ext_resource type="Script" path="res://scenes/cell.gd" id="1_vkf16"]
 
-[node name="Cell" type="Node2D"]
+[node name="Cell" type="Node2D" groups=["cell"]]
 script = ExtResource("1_vkf16")
 
 [node name="Bg" type="ColorRect" parent="."]

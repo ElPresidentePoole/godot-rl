@@ -9,13 +9,7 @@ script = ExtResource("1_y36ka")
 
 [node name="CellMap" parent="." instance=ExtResource("2_imety")]
 
-[node name="Mobs" type="Node" parent="."]
+[node name="Player" parent="CellMap" instance=ExtResource("3_txnym")]
 
-[node name="Pickups" type="Node" parent="."]
-
-[node name="Stairs" type="Node" parent="."]
-
-[node name="Player" parent="." instance=ExtResource("3_txnym")]
-
-[connection signal="perform_game_action" from="Player" to="." method="_on_perform_game_action"]
-[connection signal="stairs_down" from="Player" to="." method="_on_player_stairs_down"]
+[connection signal="perform_game_action" from="CellMap/Player" to="." method="_on_perform_game_action"]
+[connection signal="stairs_down" from="CellMap/Player" to="." method="_on_player_stairs_down"]

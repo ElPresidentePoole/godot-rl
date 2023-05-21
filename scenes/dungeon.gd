@@ -46,26 +46,26 @@ func visualize_projectile(from: Vector2, to: Vector2) -> void:
 	
 func spawn_stairs(x: int, y: int) -> void:
 	var s = S_Stairs.instantiate()
-	s.position = Vector2(x, y) * cellmap.CELL_SIZE
+	s.position = cellmap.world_pos_to_cell(Vector2(x, y))
 	s.goes_down = true # TODO: stairs_up
 	stairs.add_child(s)
 	
 	
 func spawn_pickup(x: int, y: int, pickup_key: String) -> void:
 	var p = S_Pickup.instantiate()
-	p.position = Vector2(x, y) * cellmap.CELL_SIZE
+	p.position = cellmap.world_pos_to_cell(Vector2(x, y))
 	p.pickup_key = pickup_key
 	pickups.add_child(p)
 
 func place_player(x: int, y: int) -> void:
 	""" Places a player somewhere and then updates fov """
-	player.position = Vector2(x, y) * cellmap.CELL_SIZE
+	player.position = cellmap.world_pos_to_cell(Vector2(x, y))
 
 func spawn_mob(x: int, y: int, mob_key: String) -> void:
 	var m = S_Mob.instantiate()
 	m.mob_key = mob_key
 	mobs.add_child(m)
-	m.position = Vector2(x, y) * cellmap.CELL_SIZE
+	m.position = cellmap.world_pos_to_cell(Vector2(x, y))
 	var cid: int = cellmap.get_cell_id(m.position)
 	astar.set_point_disabled(cid)
 	mob_mrpas_map[m] = cellmap.build_mrpas_from_map()
@@ -142,8 +142,11 @@ func init_level() -> void:
 		if randf() < 0.5:
 			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
 			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
-			#spawn_mob(gx, gy, ['wizard', 'officer', 'guard'][randi() % 3])
-			spawn_mob(gx, gy, 'mechaphilippe')
+			spawn_mob(gx, gy, ['guard', 'officer'][randi() % 2])
+		if randf() < 0.2:
+			var gx = l.room.position.x + 1 + randi() % int(l.room.size.x - 2)
+			var gy = l.room.position.y + 1 + randi() % int(l.room.size.y - 2)
+			spawn_mob(gx, gy, 'wizard')
 	update_player_fov(player.position)
 	player.hud.turn_label.text = 'Turn: {t}'.format({'t': turn_count})
 	player.hud.floor_label.text = 'Floor: {f}'.format({'f': floor_count})
