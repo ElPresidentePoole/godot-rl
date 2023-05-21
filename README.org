@@ -1,0 +1,5 @@
+#+title: Readme
+
+# Partisan
+
+This is a roguelike I've been making in Godot.  Started off as a self-imposed 7DRL but I couldn't finish it in that time, so I just kept adding to it.  In it, you play as a member of the French resistance who's (whose) allies have been captured by Nazis and held in a castle.  It's up to you to descend all 50 floors of Castle Teuflisch and free your friends!
