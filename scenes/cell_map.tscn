@@ -9,3 +9,5 @@ script = ExtResource("1_p71lm")
 [node name="Player" parent="." instance=ExtResource("2_kyxm7")]
 
 [node name="Mobs" type="Node" parent="."]
+
+[node name="Terrain" type="Node" parent="."]

@@ -10,10 +10,14 @@ var id_table: Dictionary = {} # Vector2i -> int
 var node_to_cell_pos_map: Dictionary = {} # Node -> Vector2i (position in cell units)
 var cell_pos_to_cell_node_map: Dictionary = {} # Vector2i (position in cell units) -> Node belonging to 'cell' group
 var root: BinarySpacePartition = null
-@onready var first_build: bool = true
 #var occupied: Array[Vector2]
 const CELL_SIZE: Vector2i = Vector2i(32, 32)
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
+const S_Player: PackedScene = preload("res://scenes/Player.tscn")
+const S_Mob: PackedScene = preload("res://scenes/Mob.tscn")
+@onready var first_build: bool = true
+@onready var mobs: Node = $Mobs
+@onready var terrain: Node = $Terrain
 
 @onready var player: Actor = $Player
 
@@ -225,7 +229,7 @@ func generate_map() -> void:
 				var c: Cell = S_Cell.instantiate()
 				c.position = Vector2i(x, y) * CELL_SIZE
 				c.set_cell_type(Cell.CellType.WALL)
-				add_child(c)
+				terrain.add_child(c)
 				add_to_map(c)
 		first_build = false
 	else:
@@ -246,9 +250,10 @@ func generate_map() -> void:
 func build_mrpas_from_map() -> MRPAS:
 	""" creates a new MRPAS object based on the CellMap and returns it """
 	var m = MRPAS.new(Vector2(map_width, map_height))
-	for cell in node_to_cell_pos_map.keys().filter(func(node): return node.is_in_group('cell')):
+	# for cell in node_to_cell_pos_map.keys().filter(func(node): return node.is_in_group('cell')):
+	for cell in terrain.get_children():
 		var cell_pos: Vector2i = node_to_cell_pos_map[cell]
-		m.set_transparent(cell_pos, not node_to_cell_pos_map[cell_pos].blocks_movement)
+		m.set_transparent(cell_pos, not cell.blocks_movement)
 	m.clear_field_of_view()
 	return m
 

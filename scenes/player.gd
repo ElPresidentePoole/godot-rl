@@ -30,7 +30,6 @@ func _ready() -> void:
 	hud.hp_label.text = build_hplabel_text()
 	hud.gold_label.text = build_goldlabel_text()
 	hud.inventory_label.text = build_inventoryspacelabel_text()
-#	attack_sound.sound
 
 func handle_movement() -> void:
 	pass

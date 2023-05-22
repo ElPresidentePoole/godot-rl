@@ -2,11 +2,8 @@ extends Node2D
 
 class_name Actor
 
-signal perform_action(action: Action)
 signal hovered_over(who: String)
 
-var mrpas: MRPAS
-var vision_range: int
 @onready var mortality: Mortality = $Mortality
 @onready var label: Label = $Label
 @onready var attack_sound: AudioStreamPlayer2D = $AttackSound

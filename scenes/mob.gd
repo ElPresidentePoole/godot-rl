@@ -1,5 +1,7 @@
 class_name Mob extends "res://scenes/Actor.gd"
 
+var mrpas: MRPAS
+var vision_range: int
 var last_seen: Vector2
 var mob_key: String
 var ready_to_act: bool = true
@@ -21,6 +23,10 @@ func _ready() -> void:
 	attack_sound.stream = Globals.sounds[mob_data['weapon']['sound']]
 	mortality.max_hp = mob_data['mortality']['max_hp']
 	mortality.hp = mortality.max_hp
+	
+	# Forgive me master, I *must* use get_parent()
+#	var map_size: Vector2 = Vector2(get_parent().map_width, get_parent().map_height)
+#	mrpas = MRPAS.new(map_size)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
