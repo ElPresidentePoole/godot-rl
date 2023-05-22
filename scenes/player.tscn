@@ -16,7 +16,13 @@ script = ExtResource("2_tnq84")
 [node name="TreasureSound" type="AudioStreamPlayer" parent="." index="2"]
 stream = ExtResource("8_75p11")
 
-[node name="HUDLayer" type="CanvasLayer" parent="." index="4"]
+[node name="Inventory" parent="." index="4" instance=ExtResource("6_yncj6")]
+
+[node name="Weapon" parent="." index="5" instance=ExtResource("9_yipu8")]
+
+[node name="Camera2D" type="Camera2D" parent="." index="6"]
+
+[node name="HUDLayer" type="CanvasLayer" parent="." index="7"]
 script = ExtResource("2_mj5bg")
 
 [node name="Labels" type="VBoxContainer" parent="HUDLayer" index="0"]
@@ -126,9 +132,3 @@ offset_right = 72.0
 offset_bottom = 35.0
 grow_horizontal = 2
 text = "Inventory"
-
-[node name="Inventory" parent="." index="5" instance=ExtResource("6_yncj6")]
-
-[node name="Weapon" parent="." index="6" instance=ExtResource("9_yipu8")]
-
-[node name="Camera2D" type="Camera2D" parent="." index="7"]

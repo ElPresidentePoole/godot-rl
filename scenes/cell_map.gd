@@ -17,22 +17,6 @@ const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 
 @onready var player: Actor = $Player
 
-func _init() -> void:
-	# TODO: replace this with something else - doesn't work as expected
-	connect("child_entered_tree", func(node: Node2D):
-		var cell_pos: Vector2i = world_pos_to_cell(node.position)
-		node_to_cell_pos_map[node] = cell_pos
-		if node.is_in_group('cell'):
-			assert(not cell_pos in cell_pos_to_cell_node_map, 'Multiple nodes of group "cell" occupying same cell position! {pos}'.format({'pos': cell_pos}))
-			cell_pos_to_cell_node_map[cell_pos] = node
-		)
-	connect("child_exiting_tree", func(node: Node2D):
-		var cell_pos: Vector2i = node_to_cell_pos_map[node]
-		if node.is_in_group('cell'):
-			cell_pos_to_cell_node_map.erase(cell_pos)
-		node_to_cell_pos_map.erase(node)
-		)
-
 func world_pos_to_cell(pos: Vector2) -> Vector2i:
 	return Vector2i(pos.x / CELL_SIZE.x, pos.y / CELL_SIZE.y)
 
@@ -47,11 +31,18 @@ func get_cell_pos(n: Node) -> Vector2i:
 	return node_to_cell_pos_map[n]
 
 func add_to_map(node: Node) -> void:
+	""" Makes an entry in node_to_cell_pos_map (and cell_pos_to_cell_node_map if necessary!) for the node """
 	var cell_pos: Vector2i = world_pos_to_cell(node.position)
 	node_to_cell_pos_map[node] = cell_pos
 	if node.is_in_group('cell'):
 		assert(not cell_pos in cell_pos_to_cell_node_map, 'Multiple nodes of group "cell" occupying same cell position! {pos}'.format({'pos': cell_pos}))
 		cell_pos_to_cell_node_map[cell_pos] = node
+
+func remove_from_map(node: Node) -> void:
+	var cell_pos: Vector2i = node_to_cell_pos_map[node]
+	if node.is_in_group('cell'):
+		cell_pos_to_cell_node_map.erase(cell_pos)
+	node_to_cell_pos_map.erase(node)
 
 #func is_occupied(pos: Vector2) -> bool:
 	#assert(pos in id_table) # Sanity check to make sure a position is in our valid cells
@@ -235,6 +226,7 @@ func generate_map() -> void:
 				c.position = Vector2i(x, y) * CELL_SIZE
 				c.set_cell_type(Cell.CellType.WALL)
 				add_child(c)
+				add_to_map(c)
 		first_build = false
 	else:
 		# Recycle our Node cells instead of deleting and respawning them
@@ -267,6 +259,7 @@ func place_player(x: int, y: int) -> void:
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	add_to_map(player)
 	generate_map()
 	generate_astar()
 

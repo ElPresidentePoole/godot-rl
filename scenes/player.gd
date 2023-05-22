@@ -5,7 +5,7 @@ extends "res://scenes/Actor.gd"
 @onready var inventory: Node = $Inventory
 @onready var treasure_sound: AudioStreamPlayer = $TreasureSound
 
-signal new_action(action: Action)
+#signal new_action(action: Action)
 signal stairs_down()
 signal obtained_new_item(item_name: String, item_occupying_slot: int)
 

@@ -1,4 +1,4 @@
-extends CanvasLayer
+class_name HUDLayer extends CanvasLayer
 
 @onready var hp_label: Label = $Labels/HP
 @onready var gold_label: Label = $Labels/Gold
