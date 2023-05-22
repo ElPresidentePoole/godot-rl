@@ -1,12 +1,5 @@
 class_name Action extends Node
 
-enum Actions {
-	MOVE,
-	ATTACK,
-	AIM,
-	WAIT
-}
-
 var actor: Node
 
 func _init(actor: Node) -> void:

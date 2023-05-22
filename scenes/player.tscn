@@ -1,101 +1,50 @@
-[gd_scene load_steps=12 format=3 uid="uid://bshgvq58j27y3"]
+[gd_scene load_steps=10 format=3 uid="uid://b247jdfxcrwo"]
 
-[ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_8d21e"]
-[ext_resource type="Script" path="res://scenes/player.gd" id="1_k80kx"]
-[ext_resource type="PackedScene" uid="uid://d0cowy6nuu2f4" path="res://scenes/inventory.tscn" id="2_qmw70"]
-[ext_resource type="Script" path="res://scenes/HUDLayer.gd" id="3_7ayhc"]
-[ext_resource type="Script" path="res://scenes/LogContainer.gd" id="3_8koru"]
-[ext_resource type="Script" path="res://scenes/mortality.gd" id="5_a5km8"]
-[ext_resource type="Script" path="res://scenes/weapon.gd" id="5_g7kw1"]
-[ext_resource type="Script" path="res://scenes/InventoryPanel.gd" id="6_7cib7"]
-[ext_resource type="AudioStream" uid="uid://bxs1ygyldymr2" path="res://sfx/pickupGold.wav" id="7_fb8eb"]
-[ext_resource type="AudioStream" uid="uid://hd8cq47cx3u7" path="res://sfx/gunshot.wav" id="7_huo4l"]
+[ext_resource type="PackedScene" uid="uid://dymwmjhry3w1s" path="res://scenes/Actor.tscn" id="1_66ha1"]
+[ext_resource type="Script" path="res://scenes/HUDLayer.gd" id="2_mj5bg"]
+[ext_resource type="Script" path="res://scenes/player.gd" id="2_tnq84"]
+[ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="3_5ho1r"]
+[ext_resource type="Script" path="res://scenes/LogContainer.gd" id="4_vwrx6"]
+[ext_resource type="Script" path="res://scenes/InventoryPanel.gd" id="5_2ygax"]
+[ext_resource type="PackedScene" uid="uid://d0cowy6nuu2f4" path="res://scenes/inventory.tscn" id="6_yncj6"]
+[ext_resource type="AudioStream" uid="uid://bxs1ygyldymr2" path="res://sfx/pickupGold.wav" id="8_75p11"]
+[ext_resource type="PackedScene" uid="uid://bpvyuiu7qaih8" path="res://scenes/weapon.tscn" id="9_yipu8"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_lircc"]
-size = Vector2(16, 16)
+[node name="Player" instance=ExtResource("1_66ha1")]
+script = ExtResource("2_tnq84")
 
-[node name="Player" type="Node2D"]
-script = ExtResource("1_k80kx")
+[node name="TreasureSound" type="AudioStreamPlayer" parent="." index="2"]
+stream = ExtResource("8_75p11")
 
-[node name="Inventory" parent="." instance=ExtResource("2_qmw70")]
+[node name="HUDLayer" type="CanvasLayer" parent="." index="4"]
+script = ExtResource("2_mj5bg")
 
-[node name="Label" type="Label" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -17.5
-offset_right = 20.0
-offset_bottom = 17.5
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 4
-theme = ExtResource("1_8d21e")
-text = "@"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position_smoothing_enabled = true
-position_smoothing_speed = 10.0
-
-[node name="N" type="RayCast2D" parent="."]
-target_position = Vector2(0, -32)
-
-[node name="S" type="RayCast2D" parent="."]
-target_position = Vector2(0, 32)
-
-[node name="E" type="RayCast2D" parent="."]
-target_position = Vector2(32, 0)
-
-[node name="W" type="RayCast2D" parent="."]
-target_position = Vector2(-32, 0)
-
-[node name="PickupCheckArea" type="Area2D" parent="."]
-collision_layer = 0
-collision_mask = 2
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupCheckArea"]
-shape = SubResource("RectangleShape2D_lircc")
-
-[node name="StairsCheckArea" type="Area2D" parent="."]
-collision_layer = 0
-collision_mask = 4
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StairsCheckArea"]
-shape = SubResource("RectangleShape2D_lircc")
-
-[node name="HUDLayer" type="CanvasLayer" parent="."]
-script = ExtResource("3_7ayhc")
-
-[node name="Labels" type="VBoxContainer" parent="HUDLayer"]
+[node name="Labels" type="VBoxContainer" parent="HUDLayer" index="0"]
 offset_right = 40.0
 offset_bottom = 40.0
-theme = ExtResource("1_8d21e")
+theme = ExtResource("3_5ho1r")
 
-[node name="HP" type="Label" parent="HUDLayer/Labels"]
+[node name="HP" type="Label" parent="HUDLayer/Labels" index="0"]
 layout_mode = 2
 text = "HP: ?/?"
 
-[node name="Gold" type="Label" parent="HUDLayer/Labels"]
+[node name="Gold" type="Label" parent="HUDLayer/Labels" index="1"]
 layout_mode = 2
 text = "Gold: ?"
 
-[node name="Turn" type="Label" parent="HUDLayer/Labels"]
+[node name="Turn" type="Label" parent="HUDLayer/Labels" index="2"]
 layout_mode = 2
 text = "Turn: ?"
 
-[node name="Floor" type="Label" parent="HUDLayer/Labels"]
+[node name="Floor" type="Label" parent="HUDLayer/Labels" index="3"]
 layout_mode = 2
 text = "Floor: ?"
 
-[node name="InventorySpace" type="Label" parent="HUDLayer/Labels"]
+[node name="InventorySpace" type="Label" parent="HUDLayer/Labels" index="4"]
 layout_mode = 2
 text = "Inventory: ?/26"
 
-[node name="LogContainer" type="ScrollContainer" parent="HUDLayer"]
+[node name="LogContainer" type="ScrollContainer" parent="HUDLayer" index="1"]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
@@ -105,30 +54,30 @@ grow_horizontal = 2
 grow_vertical = 0
 size_flags_horizontal = 0
 size_flags_vertical = 8
-theme = ExtResource("1_8d21e")
-script = ExtResource("3_8koru")
+theme = ExtResource("3_5ho1r")
+script = ExtResource("4_vwrx6")
 
-[node name="EntryContainer" type="VBoxContainer" parent="HUDLayer/LogContainer"]
+[node name="EntryContainer" type="VBoxContainer" parent="HUDLayer/LogContainer" index="0"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 alignment = 2
 
-[node name="Label" type="Label" parent="HUDLayer/LogContainer/EntryContainer"]
+[node name="Label" type="Label" parent="HUDLayer/LogContainer/EntryContainer" index="0"]
 layout_mode = 2
 text = "Welcome to GAME!"
 
-[node name="NextFloorCurtains" type="ColorRect" parent="HUDLayer"]
+[node name="NextFloorCurtains" type="ColorRect" parent="HUDLayer" index="2"]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_8d21e")
+theme = ExtResource("3_5ho1r")
 color = Color(0, 0, 0, 1)
 
-[node name="Label" type="Label" parent="HUDLayer/NextFloorCurtains"]
+[node name="Label" type="Label" parent="HUDLayer/NextFloorCurtains" index="0"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -143,17 +92,17 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "Generating next floor..."
 
-[node name="InventoryPanel" type="Panel" parent="HUDLayer"]
+[node name="InventoryPanel" type="Panel" parent="HUDLayer" index="3"]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("1_8d21e")
-script = ExtResource("6_7cib7")
+theme = ExtResource("3_5ho1r")
+script = ExtResource("5_2ygax")
 
-[node name="ItemLabels" type="VBoxContainer" parent="HUDLayer/InventoryPanel"]
+[node name="ItemLabels" type="VBoxContainer" parent="HUDLayer/InventoryPanel" index="0"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -167,7 +116,7 @@ offset_bottom = 154.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Label" type="Label" parent="HUDLayer/InventoryPanel"]
+[node name="Label" type="Label" parent="HUDLayer/InventoryPanel" index="1"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -178,20 +127,8 @@ offset_bottom = 35.0
 grow_horizontal = 2
 text = "Inventory"
 
-[node name="RayCast2D" type="RayCast2D" parent="."]
-target_position = Vector2(0, 0)
+[node name="Inventory" parent="." index="5" instance=ExtResource("6_yncj6")]
 
-[node name="Mortality" type="Node" parent="."]
-script = ExtResource("5_a5km8")
+[node name="Weapon" parent="." index="6" instance=ExtResource("9_yipu8")]
 
-[node name="Weapon" type="Node" parent="."]
-script = ExtResource("5_g7kw1")
-
-[node name="AttackSound" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("7_huo4l")
-
-[node name="TreasureSound" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("7_fb8eb")
-
-[connection signal="obtained_new_item" from="." to="HUDLayer/InventoryPanel" method="_on_player_obtained_new_item"]
-[connection signal="hurt" from="Mortality" to="." method="_on_mortality_hurt"]
+[node name="Camera2D" type="Camera2D" parent="." index="7"]

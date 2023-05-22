@@ -2,8 +2,6 @@ extends Node2D
 
 class_name CellMap
 
-# signal map_generated
-
 var map_width: int = 60
 var map_height: int = 60
 var astar: AStar2D = AStar2D.new()
@@ -17,15 +15,18 @@ var root: BinarySpacePartition = null
 const CELL_SIZE: Vector2i = Vector2i(32, 32)
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 
+@onready var player: Actor = $Player
+
 func _init() -> void:
-	connect("child_entered_tree", func(node: Node):
+	# TODO: replace this with something else - doesn't work as expected
+	connect("child_entered_tree", func(node: Node2D):
 		var cell_pos: Vector2i = world_pos_to_cell(node.position)
 		node_to_cell_pos_map[node] = cell_pos
 		if node.is_in_group('cell'):
 			assert(not cell_pos in cell_pos_to_cell_node_map, 'Multiple nodes of group "cell" occupying same cell position! {pos}'.format({'pos': cell_pos}))
 			cell_pos_to_cell_node_map[cell_pos] = node
 		)
-	connect("child_exiting_tree", func(node: Node):
+	connect("child_exiting_tree", func(node: Node2D):
 		var cell_pos: Vector2i = node_to_cell_pos_map[node]
 		if node.is_in_group('cell'):
 			cell_pos_to_cell_node_map.erase(cell_pos)
@@ -41,6 +42,16 @@ func cell_pos_to_world(pos: Vector2i) -> Vector2:
 func get_nodes_at_cell_pos(pos: Vector2i) -> Array:
 	return node_to_cell_pos_map.keys().filter(func(node):
 		return node_to_cell_pos_map[node] == pos)
+
+func get_cell_pos(n: Node) -> Vector2i:
+	return node_to_cell_pos_map[n]
+
+func add_to_map(node: Node) -> void:
+	var cell_pos: Vector2i = world_pos_to_cell(node.position)
+	node_to_cell_pos_map[node] = cell_pos
+	if node.is_in_group('cell'):
+		assert(not cell_pos in cell_pos_to_cell_node_map, 'Multiple nodes of group "cell" occupying same cell position! {pos}'.format({'pos': cell_pos}))
+		cell_pos_to_cell_node_map[cell_pos] = node
 
 #func is_occupied(pos: Vector2) -> bool:
 	#assert(pos in id_table) # Sanity check to make sure a position is in our valid cells
@@ -102,7 +113,6 @@ func generate_astar() -> void:
 
 	for pos in cell_pos_to_cell_node_map:
 		for adj_pos in get_adjacent_cells_nsew(pos):
-			print_debug(pos)
 			astar.connect_points(get_cell_id(pos), get_cell_id(adj_pos))
 		#for adj_pos in get_adjacent_cells_diag(pos):
 			#astar.connect_points(get_cell_id(pos), get_cell_id(adj_pos), 1.41)
@@ -238,6 +248,9 @@ func generate_map() -> void:
 		make_room_in_bsp(leaf)
 	connect_rooms_with_tunnels(root)
 
+	var p_pos: Vector2i = root.get_leaves()[0].get_room_center()
+	place_player(p_pos.x, p_pos.y)
+
 func build_mrpas_from_map() -> MRPAS:
 	""" creates a new MRPAS object based on the CellMap and returns it """
 	var m = MRPAS.new(Vector2(map_width, map_height))
@@ -246,6 +259,11 @@ func build_mrpas_from_map() -> MRPAS:
 		m.set_transparent(cell_pos, not node_to_cell_pos_map[cell_pos].blocks_movement)
 	m.clear_field_of_view()
 	return m
+
+func place_player(x: int, y: int) -> void:
+	""" Places a player somewhere and then updates fov """
+	player.position = cell_pos_to_world(Vector2i(x, y))
+	node_to_cell_pos_map[player] = Vector2i(x, y)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

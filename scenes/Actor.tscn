@@ -1,0 +1,43 @@
+[gd_scene load_steps=6 format=3 uid="uid://dymwmjhry3w1s"]
+
+[ext_resource type="Script" path="res://scenes/Actor.gd" id="1_4n6pm"]
+[ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_wppf0"]
+[ext_resource type="AudioStream" uid="uid://7y8icdrc2aah" path="res://sfx/zap.wav" id="3_7we5f"]
+[ext_resource type="PackedScene" uid="uid://drltexs7sdy8s" path="res://scenes/mortality.tscn" id="4_emmn5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_swjsj"]
+size = Vector2(32, 32)
+
+[node name="Actor" type="Node2D"]
+z_index = 1
+script = ExtResource("1_4n6pm")
+
+[node name="Label" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -17.5
+offset_right = 20.0
+offset_bottom = 17.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme = ExtResource("1_wppf0")
+text = "@"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AttackSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_7we5f")
+
+[node name="Mortality" parent="." instance=ExtResource("4_emmn5")]
+
+[node name="MouseOverArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MouseOverArea"]
+shape = SubResource("RectangleShape2D_swjsj")
+
+[connection signal="mouse_entered" from="MouseOverArea" to="." method="_on_mouse_over_area_mouse_entered"]
