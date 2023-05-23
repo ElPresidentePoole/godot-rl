@@ -16,4 +16,3 @@ func perform(parent: Node) -> void:
 	else: # TODO elif in_player_fov:
 		var world_pos_final: Vector2 = parent.coords_to_world(pos_final)
 		await actor.play_movement_tween(world_pos_final)
-#		parent.node_to_cell_pos_map[actor] = pos_final
