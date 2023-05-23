@@ -1,10 +1,10 @@
 [gd_scene load_steps=3 format=3 uid="uid://cy5l6bam7be0x"]
 
+[ext_resource type="Script" path="res://scenes/Cell.gd" id="1_e6ciq"]
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_v6upp"]
-[ext_resource type="Script" path="res://scenes/cell.gd" id="1_vkf16"]
 
 [node name="Cell" type="Node2D" groups=["cell"]]
-script = ExtResource("1_vkf16")
+script = ExtResource("1_e6ciq")
 
 [node name="Bg" type="ColorRect" parent="."]
 offset_left = -16.0

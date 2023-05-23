@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://doxhcsiex36n7"]
 
-[ext_resource type="Script" path="res://scenes/pickup.gd" id="1_k0e3o"]
+[ext_resource type="Script" path="res://scenes/Pickup.gd" id="1_k0e3o"]
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="2_3kcr6"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0cw64"]

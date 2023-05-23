@@ -2,13 +2,13 @@
 
 [ext_resource type="PackedScene" uid="uid://dymwmjhry3w1s" path="res://scenes/Actor.tscn" id="1_66ha1"]
 [ext_resource type="Script" path="res://scenes/HUDLayer.gd" id="2_mj5bg"]
-[ext_resource type="Script" path="res://scenes/player.gd" id="2_tnq84"]
+[ext_resource type="Script" path="res://scenes/Player.gd" id="2_tnq84"]
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="3_5ho1r"]
 [ext_resource type="Script" path="res://scenes/LogContainer.gd" id="4_vwrx6"]
 [ext_resource type="Script" path="res://scenes/InventoryPanel.gd" id="5_2ygax"]
-[ext_resource type="PackedScene" uid="uid://d0cowy6nuu2f4" path="res://scenes/inventory.tscn" id="6_yncj6"]
+[ext_resource type="PackedScene" uid="uid://d0cowy6nuu2f4" path="res://scenes/Inventory.tscn" id="6_yncj6"]
 [ext_resource type="AudioStream" uid="uid://bxs1ygyldymr2" path="res://sfx/pickupGold.wav" id="8_75p11"]
-[ext_resource type="PackedScene" uid="uid://bpvyuiu7qaih8" path="res://scenes/weapon.tscn" id="9_yipu8"]
+[ext_resource type="PackedScene" uid="uid://bpvyuiu7qaih8" path="res://scenes/Weapon.tscn" id="9_yipu8"]
 
 [node name="Player" instance=ExtResource("1_66ha1")]
 script = ExtResource("2_tnq84")

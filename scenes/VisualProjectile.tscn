@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://b2f5cemhhos1b"]
 
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_4fv5d"]
-[ext_resource type="Script" path="res://scenes/visualprojectile.gd" id="1_i7lfv"]
+[ext_resource type="Script" path="res://scenes/VisualProjectile.gd" id="1_i7lfv"]
 
 [node name="visualprojectile" type="Node2D"]
 script = ExtResource("1_i7lfv")

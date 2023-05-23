@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scenes/Actor.gd" id="1_4n6pm"]
 [ext_resource type="Theme" uid="uid://dnn8dbcm7eoww" path="res://gfx/World.tres" id="1_wppf0"]
 [ext_resource type="AudioStream" uid="uid://7y8icdrc2aah" path="res://sfx/zap.wav" id="3_7we5f"]
-[ext_resource type="PackedScene" uid="uid://drltexs7sdy8s" path="res://scenes/mortality.tscn" id="4_emmn5"]
+[ext_resource type="PackedScene" uid="uid://drltexs7sdy8s" path="res://scenes/Mortality.tscn" id="4_4sfxt"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_swjsj"]
 size = Vector2(32, 32)
@@ -33,7 +33,7 @@ vertical_alignment = 1
 [node name="AttackSound" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("3_7we5f")
 
-[node name="Mortality" parent="." instance=ExtResource("4_emmn5")]
+[node name="Mortality" parent="." instance=ExtResource("4_4sfxt")]
 
 [node name="MouseOverArea" type="Area2D" parent="."]
 

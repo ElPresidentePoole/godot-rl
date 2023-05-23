@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dymwmjhry3w1s" path="res://scenes/Actor.tscn" id="1_usw4y"]
 [ext_resource type="Script" path="res://scenes/Mob.gd" id="2_j7p46"]
-[ext_resource type="Script" path="res://scenes/weapon.gd" id="3_s7e56"]
+[ext_resource type="Script" path="res://scenes/Weapon.gd" id="3_s7e56"]
 [ext_resource type="PackedScene" uid="uid://r132ed2rm57i" path="res://scenes/AI.tscn" id="4_bq1kj"]
 
 [node name="Mob" instance=ExtResource("1_usw4y")]
