@@ -18,7 +18,7 @@ func _process(delta):
 	pass
 
 func play_movement_tween(world_pos_final: Vector2) -> void:
-	create_tween().tween_property(self, 'position', world_pos_final, 0.1)
+	await create_tween().tween_property(self, 'position', world_pos_final, 0.1).finished
 
 func _on_mouse_over_area_mouse_entered():
 	emit_signal("hovered_over", mob_name)

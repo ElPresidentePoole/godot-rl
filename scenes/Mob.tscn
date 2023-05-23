@@ -1,14 +1,14 @@
 [gd_scene load_steps=5 format=3 uid="uid://klq5pbiapvmc"]
 
-[ext_resource type="PackedScene" uid="uid://dymwmjhry3w1s" path="res://scenes/Actor.tscn" id="1_usw4y"]
-[ext_resource type="Script" path="res://scenes/Mob.gd" id="2_j7p46"]
-[ext_resource type="Script" path="res://scenes/Weapon.gd" id="3_s7e56"]
-[ext_resource type="PackedScene" uid="uid://r132ed2rm57i" path="res://scenes/AI.tscn" id="4_bq1kj"]
+[ext_resource type="PackedScene" uid="uid://dymwmjhry3w1s" path="res://scenes/Actor.tscn" id="1_xw1hy"]
+[ext_resource type="Script" path="res://scenes/Mob.gd" id="2_tgjbn"]
+[ext_resource type="Script" path="res://scenes/Weapon.gd" id="3_nys8a"]
+[ext_resource type="PackedScene" uid="uid://r132ed2rm57i" path="res://scenes/AI.tscn" id="4_ra4r2"]
 
-[node name="Mob" instance=ExtResource("1_usw4y")]
-script = ExtResource("2_j7p46")
+[node name="Mob" instance=ExtResource("1_xw1hy")]
+script = ExtResource("2_tgjbn")
 
 [node name="Weapon" type="Node" parent="." index="3"]
-script = ExtResource("3_s7e56")
+script = ExtResource("3_nys8a")
 
-[node name="AI" parent="." index="4" instance=ExtResource("4_bq1kj")]
+[node name="AI" parent="." index="4" instance=ExtResource("4_ra4r2")]

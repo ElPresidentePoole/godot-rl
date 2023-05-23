@@ -5,11 +5,9 @@ class_name CellMap
 var map_width: int = 60
 var map_height: int = 60
 var astar: AStar2D = AStar2D.new()
-var id_table: Dictionary = {} # Vector2i -> int0
-# should I set up a add_tree/remove_from_tree signal for this map below?
-var node_to_cell_pos_map: Dictionary = {} # Node -> Vector2i (position in cell units)
-var cell_pos_to_cell_node_map: Dictionary = {} # Vector2i (position in cell units) -> Node belonging to 'cell' group
-var root: BinarySpacePartition = null
+# var id_table: Dictionary = {} # Vector2i -> int0
+# var node_to_cell_pos_map: Dictionary = {} # Node -> Vector2i (position in cell units)
+# var cell_pos_to_cell_node_map: Dictionary = {} # Vector2i (position in cell units) -> Node belonging to 'cell' group
 const CELL_SIZE: Vector2i = Vector2i(32, 32)
 const S_Cell: PackedScene = preload("res://scenes/Cell.tscn")
 const S_Player: PackedScene = preload("res://scenes/Player.tscn")
@@ -22,20 +20,23 @@ var player_mrpas: MRPAS
 
 var cells_seen: Array[Vector2i] = []
 
-func world_pos_to_cell(pos: Vector2) -> Vector2i:
-#	assert(pos.x % CELL_SIZE.x == 0 and pos.y % CELL_SIZE.y == 0, "{p} can't fit on the grid!".format({'p': pos}))
+func world_to_coords(pos: Vector2) -> Vector2i:
+	# assert(pos.x % CELL_SIZE.x == 0 and pos.y % CELL_SIZE.y == 0, "{p} can't fit on the grid!".format({'p': pos}))
+	# pos.x / int(pos.x) != 1 might work?  look into this later
 	return Vector2i(pos.x / CELL_SIZE.x, pos.y / CELL_SIZE.y)
 
-func cell_pos_to_world(pos: Vector2i) -> Vector2:
+func coords_to_world(pos: Vector2i) -> Vector2:
 	return Vector2(pos.x * CELL_SIZE.x, pos.y * CELL_SIZE.y)
 
-func get_nodes_at_cell_pos(pos: Vector2i) -> Array:
-	return node_to_cell_pos_map.keys().filter(func(node):
-		return node_to_cell_pos_map[node] == pos)
+func get_nodes_at_coords(pos: Vector2i) -> Array:
+	return (mobs.get_children() + terrain.get_children()).filter(func(mob): world_to_coords(mob.position) == pos)
+	# return node_to_cell_pos_map.keys().filter(func(node):
+		# return node_to_cell_pos_map[node] == pos)
 
-func get_cell_pos(n: Node) -> Vector2i:
-	return node_to_cell_pos_map[n]
+#func get_coords(n: Node) -> Vector2i:
+	#find_child(
 
+'''
 func add_to_map(node: Node) -> void:
 	""" Makes an entry in node_to_cell_pos_map (and cell_pos_to_cell_node_map if necessary!) for the node """
 	var cell_pos: Vector2i = world_pos_to_cell(node.position)
@@ -49,6 +50,7 @@ func remove_from_map(node: Node) -> void:
 	if node.is_in_group('cell'):
 		cell_pos_to_cell_node_map.erase(cell_pos)
 	node_to_cell_pos_map.erase(node)
+'''
 
 #func is_occupied(pos: Vector2) -> bool:
 	#assert(pos in id_table) # Sanity check to make sure a position is in our valid cells
@@ -65,12 +67,12 @@ func remove_from_map(node: Node) -> void:
 	#if idx != -1:
 		#occupied.remove_at(idx)
 
-func get_cell_id(cell: Vector2i) -> int:
-	""" Gets the id of a cell from its Vector2, or assigns it an id and returns the new id """
-	if not cell in id_table:
-		id_table[cell] = astar.get_available_point_id()
-#		print_debug(cell, " not in id_table, added new cell as id ", id_table[cell])
-	return id_table[cell]
+# func get_cell_id(cell: Vector2i) -> int:
+	# """ Gets the id of a cell from its Vector2, or assigns it an id and returns the new id """
+	# if not cell in id_table:
+		# id_table[cell] = astar.get_available_point_id()
+# #		print_debug(cell, " not in id_table, added new cell as id ", id_table[cell])
+	# return id_table[cell]
 
 '''
 func get_adjacent_cells_diag(pos: Vector2) -> Array[Vector2]:
@@ -87,6 +89,17 @@ func get_adjacent_cells_diag(pos: Vector2) -> Array[Vector2]:
 	return adj_cells
 '''
 
+func get_astar_point_coords() -> Dictionary: # Given that we are only working in coordinates (i.e. Vector2i) there is no reason to even consider using Vector2s
+	""" Returns a dictionary of every coordinate (Vector2i) -> astar id (int) """
+	var coords_to_id_map: Dictionary = {}
+	var point_ids: PackedInt64Array = astar.get_point_ids()
+	for id in point_ids:
+		var p: Vector2 = astar.get_point_position(id)
+		var p_v2i: Vector2i = Vector2i(p.x, p.y)
+#		assert(p.x / int(p.x) == 1 and p.y / int(p.y) == 1, "AStar2D point id {id} has decimals!  This point was positioned incorrectly and will not work on a grid!".format({'id': id}))
+		coords_to_id_map[p_v2i] = id
+	return coords_to_id_map
+
 func get_adjacent_cells_nsew(pos: Vector2i) -> Array[Vector2i]:
 	var adj_cells: Array[Vector2i] = []
 	var adj_positions: Array[Vector2i] = [
@@ -95,22 +108,26 @@ func get_adjacent_cells_nsew(pos: Vector2i) -> Array[Vector2i]:
 		Vector2i(1, 0),
 		Vector2i(0, 1)
 		]
+	var valid_coords: Array = get_astar_point_coords().keys()
 	for adj_pos in adj_positions:
-		if adj_pos+pos in cell_pos_to_cell_node_map:
+		if adj_pos+pos in valid_coords:
 			adj_cells.append(adj_pos+pos)
 	return adj_cells
 
 func generate_astar() -> void:
 	astar.clear()
 
-	for pos in cell_pos_to_cell_node_map:
-		astar.add_point(get_cell_id(pos), pos)
-		if cell_pos_to_cell_node_map[pos].blocks_movement: # solid walls and stuff
-			astar.set_point_disabled(get_cell_id(pos))
+	for t in terrain.get_children():
+		var new_point_id: int = astar.get_available_point_id()
+		astar.add_point(new_point_id, world_to_coords(t.position))
+		if t.blocks_movement: # solid walls and stuff
+			astar.set_point_disabled(new_point_id)
 
-	for pos in cell_pos_to_cell_node_map:
-		for adj_pos in get_adjacent_cells_nsew(pos):
-			astar.connect_points(get_cell_id(pos), get_cell_id(adj_pos))
+	var terrain_map: Dictionary = get_astar_point_coords()
+	for coords in terrain_map.keys():
+		for adj_pos in get_adjacent_cells_nsew(coords):
+			astar.connect_points(terrain_map[coords], terrain_map[adj_pos])
+			# do i need to swap these keys/value aorund?
 		#for adj_pos in get_adjacent_cells_diag(pos):
 			#astar.connect_points(get_cell_id(pos), get_cell_id(adj_pos), 1.41)
 
@@ -189,9 +206,12 @@ func make_room_in_bsp(bsp: BinarySpacePartition) -> void:
 	bsp.room = new_room # Save our room info for later
 	bsp.has_room = true
 #		print_debug('room %s' % [room] )
+
+	var all_cells: Array[Node] = terrain.get_children()
+	# var cells: Array[Node] = terrain.get_children()
 	for x in range(new_room.position.x+1, new_room.end.x-1):
 		for y in range(new_room.position.y+1, new_room.end.y-1): # -/+1 to give us space for walls
-			var c: Cell = cell_pos_to_cell_node_map[Vector2i(x, y)]
+			var c: Cell = all_cells.filter(func(e): return world_to_coords(e.position) == Vector2i(x, y))[0] # there !!!should!!! be only one cell in terrain by position...
 			c.set_cell_type(Cell.CellType.FLOOR)
 
 func dig_tunnel(start_x: int, start_y: int, finish_x: int, finish_y) -> void:
@@ -203,15 +223,15 @@ func dig_tunnel(start_x: int, start_y: int, finish_x: int, finish_y) -> void:
 		create_h_tunnel(start_x, finish_x, finish_y)
 
 func create_h_tunnel(x1: int, x2: int, y: int) -> void:
+	var all_cells: Array[Node] = terrain.get_children()
 	for x in range(min(x1, x2), max(x1, x2) + 1):
-		var pos: Vector2i = Vector2i(x, y)
-		var c: Cell = cell_pos_to_cell_node_map[pos]
+		var c: Cell = all_cells.filter(func(e): return world_to_coords(e.position) == Vector2i(x, y))[0] # there !!!should!!! be only one cell in terrain by position...
 		c.set_cell_type(Cell.CellType.FLOOR)
 
 func create_v_tunnel(y1: int, y2: int, x: int) -> void:
+	var all_cells: Array[Node] = terrain.get_children()
 	for y in range(min(y1, y2), max(y1, y2) + 1):
-		var pos: Vector2i = Vector2i(x, y)
-		var c: Cell = cell_pos_to_cell_node_map[pos]
+		var c: Cell = all_cells.filter(func(e): return world_to_coords(e.position) == Vector2i(x, y))[0] # there !!!should!!! be only one cell in terrain by position...
 		c.set_cell_type(Cell.CellType.FLOOR)
 
 func connect_rooms_with_tunnels(tree_root: BinarySpacePartition) -> void:
@@ -224,7 +244,7 @@ func connect_rooms_with_tunnels(tree_root: BinarySpacePartition) -> void:
 		var finish: Vector2 = leaves[idx+1].get_room_center()
 		dig_tunnel(start.x, start.y, finish.x, finish.y)
 
-func generate_map() -> void:
+func generate_map() -> BinarySpacePartition:
 	if first_build:
 		for x in range(map_width):
 			for y in range(map_height):
@@ -232,29 +252,35 @@ func generate_map() -> void:
 				c.position = Vector2i(x, y) * CELL_SIZE
 				c.set_cell_type(Cell.CellType.WALL)
 				terrain.add_child(c)
-				add_to_map(c)
 		first_build = false
 	else:
 		# Recycle our Node cells instead of deleting and respawning them
 		for c in get_children():
 			c.set_cell_type(Cell.CellType.WALL)
 
-	root = BinarySpacePartition.new(Rect2i(0, 0, map_width, map_height))
+	var root: BinarySpacePartition = BinarySpacePartition.new(Rect2i(0, 0, map_width, map_height))
 
 	root.recursively_make_tree(4, randi() % 2 == 0)
 	for leaf in root.get_leaves():
 		make_room_in_bsp(leaf)
 	connect_rooms_with_tunnels(root)
 
+	return root
+
+func populate_map(root: BinarySpacePartition) -> void:
 	var p_pos: Vector2i = root.get_leaves()[0].get_room_center()
 	spawn_player(p_pos.x, p_pos.y)
+
+	for room in root.get_leaves().slice(1):
+		var mob_pos: Vector2i = room.get_room_center()
+		spawn_mob(mob_pos.x, mob_pos.y, "guard")
 
 func build_mrpas_from_map() -> MRPAS:
 	""" creates a new MRPAS object based on the CellMap and returns it """
 	var m = MRPAS.new(Vector2(map_width, map_height))
 	# for cell in node_to_cell_pos_map.keys().filter(func(node): return node.is_in_group('cell')):
 	for cell in terrain.get_children():
-		var cell_pos: Vector2i = node_to_cell_pos_map[cell]
+		var cell_pos: Vector2i = world_to_coords(cell.position)
 		m.set_transparent(cell_pos, not cell.blocks_movement)
 	m.clear_field_of_view()
 	return m
@@ -263,17 +289,36 @@ func spawn_player(x: int, y: int) -> void:
 	""" Places a player somewhere and then updates fov """
 	player = S_Player.instantiate()
 	player_mrpas = build_mrpas_from_map()
-	player.position = cell_pos_to_world(Vector2i(x, y))
-	node_to_cell_pos_map[player] = Vector2i(x, y)
+	player.position = coords_to_world(Vector2i(x, y))
 	add_child(player)
-	add_to_map(player)
 	reveal_map_based_on_fov(player_mrpas)
+
+func spawn_mob(x: int, y: int, mob_key: String) -> void: # should this take in get_astar_point_coords?
+	var m = S_Mob.instantiate()
+	m.mob_key = mob_key
+	m.position = coords_to_world(Vector2i(x, y))
+	mobs.add_child(m)
+	var point_map: Dictionary = get_astar_point_coords()
+	var cid: int = point_map[world_to_coords(m.position)]
+	astar.set_point_disabled(cid)
+	m.init_mrpas(build_mrpas_from_map())
+	m.mortality.connect('died', _on_mob_died)
+
+func _on_mob_died(poor_schmuck: Mob) -> void:
+#		poor_schmuck.queue_free()
+	poor_schmuck.label.modulate = Color.BLANCHED_ALMOND
+	var schmuck_pos: Vector2i = world_to_coords(poor_schmuck.position)
+	var point_map: Dictionary = get_astar_point_coords()
+	var cell_died_at = point_map[schmuck_pos]
+	astar.set_point_disabled(cell_died_at, false)
+	player.hud.log_container.add_entry('{name} has died!'.format({'name': poor_schmuck.mob_name}))
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	generate_map()
+	var bsp_tree: BinarySpacePartition = generate_map()
 	generate_astar()
-	
+
+	populate_map(bsp_tree)
 	player.connect("new_action", _on_player_new_action)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -282,24 +327,24 @@ func _process(delta) -> void:
 
 
 func reveal_map_based_on_fov(fov: MRPAS) -> void:
-	fov.clear_field_of_view()
-	fov.compute_field_of_view(get_cell_pos(player), 8)
-	
 	for n in terrain.get_children():
-		if fov.is_in_view(get_cell_pos(n)):
+		var n_coords: Vector2i = world_to_coords(n.position)
+		if fov.is_in_view(n_coords):
 			n.modulate = Color.WHITE
 			n.show()
-			if not get_cell_pos(n) in cells_seen:
-				cells_seen.append(get_cell_pos(n))
-		elif get_cell_pos(n) in cells_seen:
+			if not n_coords in cells_seen:
+				cells_seen.append(n_coords)
+		elif n_coords in cells_seen:
 			n.modulate = Color.DARK_RED
 			n.show()
 		else:
 			n.hide()
 
 func _on_player_new_action(action):
-	action.perform(self)
-	
+	await action.perform(self)
+	player_mrpas.clear_field_of_view()
+	player_mrpas.compute_field_of_view(world_to_coords(player.position), 8) # TODO: i want the players/actors to seemingly make their moves async, but i have a quick-fix involving await to ensure the FOV isn't a step behind.
+
 	for mob in mobs.get_children():
 		if mob.ai != null:
 			var ai_action: Action = mob.ai.get_next_action(self)
