@@ -5,9 +5,9 @@ extends "res://scenes/Actor.gd"
 @onready var inventory: Node = $Inventory
 @onready var treasure_sound: AudioStreamPlayer = $TreasureSound
 
-#signal new_action(action: Action)
-signal stairs_down()
-signal obtained_new_item(item_name: String, item_occupying_slot: int)
+signal new_action(action: Action)
+#signal stairs_down()
+#signal obtained_new_item(item_name: String, item_occupying_slot: int)
 
 var gold: int = 0
 
@@ -57,7 +57,14 @@ func handle_movement() -> void:
 #	await create_tween().tween_property(self, 'position', dest, 0.1).finished
 
 func _unhandled_input(event: InputEvent) -> void:
-	pass
+	if event.is_action_pressed("move_north"):
+		emit_signal("new_action", MoveAction.new(self, Vector2i(0, -1)))
+	elif event.is_action_pressed("move_south"):
+		emit_signal("new_action", MoveAction.new(self, Vector2i(0, 1)))
+	elif event.is_action_pressed("move_west"):
+		emit_signal("new_action", MoveAction.new(self, Vector2i(-1, 0)))
+	elif event.is_action_pressed("move_east"):
+		emit_signal("new_action", MoveAction.new(self, Vector2i(1, 0)))
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:

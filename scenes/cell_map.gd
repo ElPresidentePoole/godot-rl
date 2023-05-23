@@ -5,12 +5,11 @@ class_name CellMap
 var map_width: int = 60
 var map_height: int = 60
 var astar: AStar2D = AStar2D.new()
-var id_table: Dictionary = {} # Vector2i -> int
+var id_table: Dictionary = {} # Vector2i -> int0
 # should I set up a add_tree/remove_from_tree signal for this map below?
 var node_to_cell_pos_map: Dictionary = {} # Node -> Vector2i (position in cell units)
 var cell_pos_to_cell_node_map: Dictionary = {} # Vector2i (position in cell units) -> Node belonging to 'cell' group
 var root: BinarySpacePartition = null
-#var occupied: Array[Vector2]
 const CELL_SIZE: Vector2i = Vector2i(32, 32)
 const S_Cell: PackedScene = preload("res://scenes/cell.tscn")
 const S_Player: PackedScene = preload("res://scenes/Player.tscn")
@@ -18,10 +17,13 @@ const S_Mob: PackedScene = preload("res://scenes/Mob.tscn")
 @onready var first_build: bool = true
 @onready var mobs: Node = $Mobs
 @onready var terrain: Node = $Terrain
+var player: Actor
+var player_mrpas: MRPAS
 
-@onready var player: Actor = $Player
+var cells_seen: Array[Vector2i] = []
 
 func world_pos_to_cell(pos: Vector2) -> Vector2i:
+#	assert(pos.x % CELL_SIZE.x == 0 and pos.y % CELL_SIZE.y == 0, "{p} can't fit on the grid!".format({'p': pos}))
 	return Vector2i(pos.x / CELL_SIZE.x, pos.y / CELL_SIZE.y)
 
 func cell_pos_to_world(pos: Vector2i) -> Vector2:
@@ -245,7 +247,7 @@ func generate_map() -> void:
 	connect_rooms_with_tunnels(root)
 
 	var p_pos: Vector2i = root.get_leaves()[0].get_room_center()
-	place_player(p_pos.x, p_pos.y)
+	spawn_player(p_pos.x, p_pos.y)
 
 func build_mrpas_from_map() -> MRPAS:
 	""" creates a new MRPAS object based on the CellMap and returns it """
@@ -257,17 +259,52 @@ func build_mrpas_from_map() -> MRPAS:
 	m.clear_field_of_view()
 	return m
 
-func place_player(x: int, y: int) -> void:
+func spawn_player(x: int, y: int) -> void:
 	""" Places a player somewhere and then updates fov """
+	player = S_Player.instantiate()
+	player_mrpas = build_mrpas_from_map()
 	player.position = cell_pos_to_world(Vector2i(x, y))
 	node_to_cell_pos_map[player] = Vector2i(x, y)
+	add_child(player)
+	add_to_map(player)
+	reveal_map_based_on_fov(player_mrpas)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	add_to_map(player)
 	generate_map()
 	generate_astar()
+	
+	player.connect("new_action", _on_player_new_action)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	pass
+
+
+func reveal_map_based_on_fov(fov: MRPAS) -> void:
+	fov.clear_field_of_view()
+	fov.compute_field_of_view(get_cell_pos(player), 8)
+	
+	for n in terrain.get_children():
+		if fov.is_in_view(get_cell_pos(n)):
+			n.modulate = Color.WHITE
+			n.show()
+			if not get_cell_pos(n) in cells_seen:
+				cells_seen.append(get_cell_pos(n))
+		elif get_cell_pos(n) in cells_seen:
+			n.modulate = Color.DARK_RED
+			n.show()
+		else:
+			n.hide()
+
+func _on_player_new_action(action):
+	action.perform(self)
+	
+	for mob in mobs.get_children():
+		if mob.ai != null:
+			var ai_action: Action = mob.ai.get_next_action(self)
+			ai_action.perform(self)
+	
+	Globals.turn += 1
+	player.hud.turn_label.text = "Turn: {t}".format({'t': Globals.turn})
+	reveal_map_based_on_fov(player_mrpas)
