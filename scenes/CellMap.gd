@@ -17,6 +17,7 @@ const S_Mob: PackedScene = preload("res://scenes/Mob.tscn")
 @onready var terrain: Node = $Terrain
 var player: Actor
 var player_mrpas: MRPAS
+var actions_in_progress: Array[Action] = []
 
 var cells_seen: Array[Vector2i] = []
 
@@ -340,16 +341,26 @@ func reveal_map_based_on_fov(fov: MRPAS) -> void:
 		else:
 			n.hide()
 
-func _on_player_new_action(action):
-	await action.perform(self)
-	player_mrpas.clear_field_of_view()
-	player_mrpas.compute_field_of_view(world_to_coords(player.position), 8) # TODO: i want the players/actors to seemingly make their moves async, but i have a quick-fix involving await to ensure the FOV isn't a step behind.
+func _on_action_completed(action: Action) -> void:
+	actions_in_progress.erase(action)
+
+	if actions_in_progress.is_empty():
+		player_mrpas.clear_field_of_view()
+		player_mrpas.compute_field_of_view(world_to_coords(player.position), 8)
+		Globals.turn += 1
+		player.hud.turn_label.text = "Turn: {t}".format({'t': Globals.turn})
+		reveal_map_based_on_fov(player_mrpas)
+
+func _on_player_new_action(action: Action) -> void:
+	if not actions_in_progress.is_empty():
+		# We aren't even done with the last turn!  Chill out, player!
+		return
+
+	action.connect("action_completed", _on_action_completed)
+	action.perform(self)
 
 	for mob in mobs.get_children():
 		if mob.ai != null:
 			var ai_action: Action = mob.ai.get_next_action(self)
+			ai_action.connect("action_completed", _on_action_completed)
 			ai_action.perform(self)
-	
-	Globals.turn += 1
-	player.hud.turn_label.text = "Turn: {t}".format({'t': Globals.turn})
-	reveal_map_based_on_fov(player_mrpas)
