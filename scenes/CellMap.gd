@@ -17,7 +17,7 @@ const S_Mob: PackedScene = preload("res://scenes/Mob.tscn")
 @onready var terrain: Node = $Terrain
 var player: Actor
 var player_mrpas: MRPAS
-var actions_in_progress: Array[Action] = []
+var ready_for_player_input: bool = true
 
 var cells_seen: Array[Vector2i] = []
 
@@ -341,24 +341,16 @@ func reveal_map_based_on_fov(fov: MRPAS) -> void:
 		else:
 			n.hide()
 
-func _on_action_completed(action: Action) -> void:
-	actions_in_progress.erase(action)
-
-	if actions_in_progress.is_empty():
-		player_mrpas.clear_field_of_view()
-		player_mrpas.compute_field_of_view(world_to_coords(player.position), 8)
-		Globals.turn += 1
-		player.hud.turn_label.text = "Turn: {t}".format({'t': Globals.turn})
-		reveal_map_based_on_fov(player_mrpas)
-
-func _on_player_new_action(action: Action) -> void:
-	if not actions_in_progress.is_empty():
+func _on_player_new_action(player_action: Action) -> void:
+	if not ready_for_player_input:
 		# We aren't even done with the last turn!  Chill out, player!
 		return
+	ready_for_player_input = false
 
-	action.connect("action_completed", _on_action_completed)
-	actions_in_progress.append(action)
-	action.perform(self)
+	var actions: Array[Action] = []
+	var signals: Array[Signal] = []
+	actions.append(player_action)
+	signals.append(player_action.action_completed)
 	# Because action_completed can be called literally instantly, this leaves time
 	# for the player to spam more "empty" actions, increasing our turn count
 	# FIXME
@@ -366,6 +358,18 @@ func _on_player_new_action(action: Action) -> void:
 	for mob in mobs.get_children():
 		if mob.ai != null:
 			var ai_action: Action = mob.ai.get_next_action(self)
-			ai_action.connect("action_completed", _on_action_completed)
-			actions_in_progress.append(ai_action)
-			ai_action.perform(self)
+			actions.append(ai_action)
+			signals.append(ai_action.action_completed)
+	
+	var p: Promise = Promise.new(signals)
+	p.all()
+	for action in actions:
+		action.perform(self)
+	await p.resolved
+	# previously _on_player_action_completed or whatever it was called
+	player_mrpas.clear_field_of_view()
+	player_mrpas.compute_field_of_view(world_to_coords(player.position), 8)
+	Globals.turn += 1
+	player.hud.turn_label.text = "Turn: {t}".format({'t': Globals.turn})
+	reveal_map_based_on_fov(player_mrpas)
+	ready_for_player_input = true
