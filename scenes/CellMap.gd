@@ -359,6 +359,9 @@ func _on_player_new_action(action: Action) -> void:
 	action.connect("action_completed", _on_action_completed)
 	actions_in_progress.append(action)
 	action.perform(self)
+	# Because action_completed can be called literally instantly, this leaves time
+	# for the player to spam more "empty" actions, increasing our turn count
+	# FIXME
 
 	for mob in mobs.get_children():
 		if mob.ai != null:
