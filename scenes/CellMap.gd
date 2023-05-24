@@ -357,10 +357,12 @@ func _on_player_new_action(action: Action) -> void:
 		return
 
 	action.connect("action_completed", _on_action_completed)
+	actions_in_progress.append(action)
 	action.perform(self)
 
 	for mob in mobs.get_children():
 		if mob.ai != null:
 			var ai_action: Action = mob.ai.get_next_action(self)
 			ai_action.connect("action_completed", _on_action_completed)
+			actions_in_progress.append(ai_action)
 			ai_action.perform(self)

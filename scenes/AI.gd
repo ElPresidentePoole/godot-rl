@@ -20,7 +20,7 @@ func get_next_action(cellmap: CellMap) -> Action:
 			var dv_y: int = path[1].y-cellmap.world_to_coords(parent.position).y
 			var dv: Vector2i = Vector2i(dv_x, dv_y)
 			print_debug(dv)
-			return MoveAction.new(parent, dv)
+			return MoveAction.new(parent, dv, true)
 	
 	return Action.new(parent) # Do nothing lol
 #		elif last_seen in path.slice(1, weapon.attack_range):
