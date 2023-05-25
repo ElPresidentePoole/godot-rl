@@ -341,16 +341,26 @@ func reveal_map_based_on_fov(fov: MRPAS) -> void:
 		else:
 			n.hide()
 
+func actions_completed() -> void:
+	# previously _on_player_action_completed or whatever it was called
+	player_mrpas.clear_field_of_view()
+	player_mrpas.compute_field_of_view(world_to_coords(player.position), 8)
+	Globals.turn += 1
+	player.hud.turn_label.text = "Turn: {t}".format({'t': Globals.turn})
+	reveal_map_based_on_fov(player_mrpas)
+	ready_for_player_input = true
+
 func _on_player_new_action(player_action: Action) -> void:
 	if not ready_for_player_input:
 		# We aren't even done with the last turn!  Chill out, player!
 		return
 	ready_for_player_input = false
 
+	var promise: Promise = Promise.new()
+	promise.connect('resolved', actions_completed)
 	var actions: Array[Action] = []
-	var signals: Array[Signal] = []
 	actions.append(player_action)
-	signals.append(player_action.action_completed)
+	promise.add_signal(player_action.action_completed)
 	# Because action_completed can be called literally instantly, this leaves time
 	# for the player to spam more "empty" actions, increasing our turn count
 	# FIXME
@@ -359,16 +369,7 @@ func _on_player_new_action(player_action: Action) -> void:
 		if mob.ai != null:
 			var ai_action: Action = mob.ai.get_next_action(self)
 			actions.append(ai_action)
-			signals.append(ai_action.action_completed)
-	
-	var p: Promise = Promise.new(signals)
+			promise.add_signal(ai_action.action_completed)
+
 	for action in actions:
 		action.perform(self)
-	await p.resolved
-	# previously _on_player_action_completed or whatever it was called
-	player_mrpas.clear_field_of_view()
-	player_mrpas.compute_field_of_view(world_to_coords(player.position), 8)
-	Globals.turn += 1
-	player.hud.turn_label.text = "Turn: {t}".format({'t': Globals.turn})
-	reveal_map_based_on_fov(player_mrpas)
-	ready_for_player_input = true
