@@ -8,10 +8,12 @@ class_name HUDLayer extends CanvasLayer
 @onready var inventory_panel: Panel = $InventoryPanel
 @onready var curtains: Label = $Labels/Floor
 @onready var log_container: ScrollContainer = $LogContainer
+@onready var hovered_over_label: Label = $HoveredOver
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	HUDSignalBus.connect("actor_hovered_over", func(s: String):
+		hovered_over_label.text = s)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

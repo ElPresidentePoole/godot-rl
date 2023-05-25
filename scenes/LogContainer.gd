@@ -4,7 +4,7 @@ class_name LogContainer
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	LogSignalBus.connect('new_journal_entry', add_entry)
+	HUDSignalBus.connect('new_journal_entry', add_entry)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

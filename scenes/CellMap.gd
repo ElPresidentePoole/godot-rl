@@ -31,64 +31,6 @@ func coords_to_world(pos: Vector2i) -> Vector2:
 
 func get_nodes_at_coords(pos: Vector2i) -> Array:
 	return (mobs.get_children() + terrain.get_children()).filter(func(mob): world_to_coords(mob.position) == pos)
-	# return node_to_cell_pos_map.keys().filter(func(node):
-		# return node_to_cell_pos_map[node] == pos)
-
-#func get_coords(n: Node) -> Vector2i:
-	#find_child(
-
-'''
-func add_to_map(node: Node) -> void:
-	""" Makes an entry in node_to_cell_pos_map (and cell_pos_to_cell_node_map if necessary!) for the node """
-	var cell_pos: Vector2i = world_pos_to_cell(node.position)
-	node_to_cell_pos_map[node] = cell_pos
-	if node.is_in_group('cell'):
-		assert(not cell_pos in cell_pos_to_cell_node_map, 'Multiple nodes of group "cell" occupying same cell position! {pos}'.format({'pos': cell_pos}))
-		cell_pos_to_cell_node_map[cell_pos] = node
-
-func remove_from_map(node: Node) -> void:
-	var cell_pos: Vector2i = node_to_cell_pos_map[node]
-	if node.is_in_group('cell'):
-		cell_pos_to_cell_node_map.erase(cell_pos)
-	node_to_cell_pos_map.erase(node)
-'''
-
-#func is_occupied(pos: Vector2) -> bool:
-	#assert(pos in id_table) # Sanity check to make sure a position is in our valid cells
-	#return pos in occupied
-
-#func set_occupied(pos: Vector2) -> void:
-	#assert(pos in id_table) # Sanity check to make sure a position is in our valid cells
-	#if not pos in occupied:
-		#occupied.append(pos)
-
-#func set_unoccupied(pos: Vector2) -> void:
-	#assert(pos in id_table) # Sanity check to make sure a position is in our valid cells
-	#var idx = occupied.find(pos)
-	#if idx != -1:
-		#occupied.remove_at(idx)
-
-# func get_cell_id(cell: Vector2i) -> int:
-	# """ Gets the id of a cell from its Vector2, or assigns it an id and returns the new id """
-	# if not cell in id_table:
-		# id_table[cell] = astar.get_available_point_id()
-# #		print_debug(cell, " not in id_table, added new cell as id ", id_table[cell])
-	# return id_table[cell]
-
-'''
-func get_adjacent_cells_diag(pos: Vector2) -> Array[Vector2]:
-	var adj_cells: Array[Vector2] = []
-	var adj_positions: Array[Vector2i] = [
-		Vector2i(-1, -1),
-		Vector2i(1, -1),
-		Vector2i(-1, 1),
-		Vector2i(1, 1)
-		]
-	for adj_pos in adj_positions:
-		if adj_pos+pos in cell_pos_to_node_map:
-			adj_cells.append(adj_pos+pos)
-	return adj_cells
-'''
 
 func get_astar_point_coords() -> Dictionary: # Given that we are only working in coordinates (i.e. Vector2i) there is no reason to even consider using Vector2s
 	""" Returns a dictionary of every coordinate (Vector2i) -> astar id (int) """
@@ -357,7 +299,7 @@ func _on_player_new_action(player_action: Action) -> void:
 		return
 	
 	if not player_action.possible(self):
-		LogSignalBus.emit_signal("new_journal_entry", "I can't do that!")
+		HUDSignalBus.emit_signal("new_journal_entry", "I can't do that!")
 		return
 		
 	ready_for_player_input = false
@@ -367,10 +309,7 @@ func _on_player_new_action(player_action: Action) -> void:
 	var actions: Array[Action] = []
 	actions.append(player_action)
 	promise.add_signal(player_action.action_completed)
-	# Because action_completed can be called literally instantly, this leaves time
-	# for the player to spam more "empty" actions, increasing our turn count
-	# FIXME
-
+	
 	for mob in mobs.get_children():
 		if mob.ai != null:
 			var ai_action: Action = mob.ai.get_next_action(self)

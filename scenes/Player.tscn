@@ -133,7 +133,7 @@ offset_bottom = 35.0
 grow_horizontal = 2
 text = "Inventory"
 
-[node name="MousedOver" type="Label" parent="HUDLayer" index="4"]
+[node name="HoveredOver" type="Label" parent="HUDLayer" index="4"]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5

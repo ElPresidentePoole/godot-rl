@@ -13,7 +13,7 @@ func _ready() -> void:
 	assert(mob_key != null && mob_key in Globals.beastiary)
 	var mob_data: Dictionary = Globals.beastiary[mob_key]
 	vision_range = mob_data['vision_range']
-	mob_name = mob_data['mob_name']
+	actor_name = mob_data['mob_name']
 	label.text = mob_data['symbol']
 	label.modulate = Color(mob_data['color'])
 	weapon.attack_range = mob_data['weapon']['range']

@@ -41,3 +41,4 @@ stream = ExtResource("3_7we5f")
 shape = SubResource("RectangleShape2D_swjsj")
 
 [connection signal="mouse_entered" from="MouseOverArea" to="." method="_on_mouse_over_area_mouse_entered"]
+[connection signal="mouse_exited" from="MouseOverArea" to="." method="_on_mouse_over_area_mouse_exited"]
