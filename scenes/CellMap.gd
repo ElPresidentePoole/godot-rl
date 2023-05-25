@@ -355,6 +355,11 @@ func _on_player_new_action(player_action: Action) -> void:
 	if not ready_for_player_input:
 		# We aren't even done with the last turn!  Chill out, player!
 		return
+	
+	if not player_action.possible(self):
+		LogSignalBus.emit_signal("new_journal_entry", "I can't do that!")
+		return
+		
 	ready_for_player_input = false
 
 	var promise: Promise = Promise.new()
