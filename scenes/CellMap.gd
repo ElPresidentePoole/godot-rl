@@ -292,6 +292,7 @@ func spawn_player(x: int, y: int) -> void:
 	player_mrpas = build_mrpas_from_map()
 	player.position = coords_to_world(Vector2i(x, y))
 	add_child(player)
+	player_mrpas.compute_field_of_view(world_to_coords(player.position), 8)
 	reveal_map_based_on_fov(player_mrpas)
 
 func spawn_mob(x: int, y: int, mob_key: String) -> void: # should this take in get_astar_point_coords?

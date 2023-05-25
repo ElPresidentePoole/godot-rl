@@ -1,3 +1,6 @@
+''' a utility class made to take in a bunch of signals and emit the "resolved" signal when they are all complete,
+essentially allowing one to "await" several signals at once '''
+
 class_name Promise extends Node
 
 var remaining: int
