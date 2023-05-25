@@ -362,7 +362,6 @@ func _on_player_new_action(player_action: Action) -> void:
 			signals.append(ai_action.action_completed)
 	
 	var p: Promise = Promise.new(signals)
-	p.all()
 	for action in actions:
 		action.perform(self)
 	await p.resolved
