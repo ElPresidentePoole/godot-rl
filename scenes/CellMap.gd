@@ -43,7 +43,7 @@ func get_astar_point_coords() -> Dictionary: # Given that we are only working in
 		coords_to_id_map[p_v2i] = id
 	return coords_to_id_map
 
-func get_adjacent_cells_nsew(pos: Vector2i) -> Array[Vector2i]:
+func get_adjacent_cells_nsew(astar_point_coords: Dictionary, pos: Vector2i) -> Array[Vector2i]:
 	var adj_cells: Array[Vector2i] = []
 	var adj_positions: Array[Vector2i] = [
 		Vector2i(0, -1),
@@ -51,7 +51,7 @@ func get_adjacent_cells_nsew(pos: Vector2i) -> Array[Vector2i]:
 		Vector2i(1, 0),
 		Vector2i(0, 1)
 		]
-	var valid_coords: Array = get_astar_point_coords().keys()
+	var valid_coords: Array = astar_point_coords.keys()
 	for adj_pos in adj_positions:
 		if adj_pos+pos in valid_coords:
 			adj_cells.append(adj_pos+pos)
@@ -68,7 +68,7 @@ func generate_astar() -> void:
 
 	var terrain_map: Dictionary = get_astar_point_coords()
 	for coords in terrain_map.keys():
-		for adj_pos in get_adjacent_cells_nsew(coords):
+		for adj_pos in get_adjacent_cells_nsew(terrain_map, coords):
 			astar.connect_points(terrain_map[coords], terrain_map[adj_pos])
 			# do i need to swap these keys/value aorund?
 		#for adj_pos in get_adjacent_cells_diag(pos):
