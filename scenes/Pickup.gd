@@ -1,7 +1,7 @@
 extends Node2D
 
-const S_Item = preload('res://scenes/item.tscn')
-const S_Treasure = preload('res://scenes/treasure.tscn')
+const S_Item = preload('res://scenes/Item.tscn')
+const S_Treasure = preload('res://scenes/Treasure.tscn')
 
 @onready var symbol: Label = $Label
 var pickup_key: String

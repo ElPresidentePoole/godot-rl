@@ -1,7 +1,7 @@
 extends Node
 
-const S_Weapon = preload("res://scenes/weapon.tscn")
-const S_Use = preload("res://scenes/use.tscn")
+const S_Weapon = preload("res://scenes/Weapon.tscn")
+const S_Use = preload("res://scenes/Use.tscn")
 
 var item_key: String
 @onready var item_name: String = Globals.armory[item_key]['item_name']

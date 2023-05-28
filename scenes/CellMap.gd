@@ -257,7 +257,7 @@ func _on_mob_died(poor_schmuck: Mob) -> void:
 	var point_map: Dictionary = get_astar_point_coords()
 	var cell_died_at = point_map[schmuck_pos]
 	astar.set_point_disabled(cell_died_at, false)
-	player.hud.log_container.add_entry('{name} has died!'.format({'name': poor_schmuck.mob_name}))
+	HUDSignalBus.emit_signal("new_journal_entry", '{name} has died!'.format({'name': poor_schmuck.mob_name}))
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
