@@ -7,7 +7,6 @@ const ALPHABET: String = 'abcdefghijklmnopqrstuvwxyz'
 @onready var sounds: Dictionary = load_sounds()
 @onready var beastiary: Dictionary = load_mobs()
 @onready var armory: Dictionary = load_pickups()
-var turn: int = 0
 
 enum MovementDirection {
 	NORTH,

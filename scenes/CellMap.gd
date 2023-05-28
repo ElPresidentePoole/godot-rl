@@ -18,6 +18,8 @@ const S_Mob: PackedScene = preload("res://scenes/Mob.tscn")
 var player: Actor
 var player_mrpas: MRPAS
 var ready_for_player_input: bool = true
+var turn: int = 0
+var floor: int = 1
 
 var cells_seen: Array[Vector2i] = []
 
@@ -264,6 +266,8 @@ func _ready() -> void:
 
 	populate_map(bsp_tree)
 	player.connect("new_action", _on_player_new_action)
+	HUDSignalBus.emit_signal("new_turn", turn)
+	HUDSignalBus.emit_signal("new_floor", floor)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
@@ -288,8 +292,8 @@ func actions_completed() -> void:
 	# previously _on_player_action_completed or whatever it was called
 	player_mrpas.clear_field_of_view()
 	player_mrpas.compute_field_of_view(world_to_coords(player.position), 8)
-	Globals.turn += 1
-	player.hud.turn_label.text = "Turn: {t}".format({'t': Globals.turn})
+	turn += 1
+	HUDSignalBus.emit_signal('new_turn', turn)
 	reveal_map_based_on_fov(player_mrpas)
 	ready_for_player_input = true
 

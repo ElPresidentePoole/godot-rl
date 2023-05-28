@@ -14,6 +14,10 @@ class_name HUDLayer extends CanvasLayer
 func _ready():
 	HUDSignalBus.connect("actor_hovered_over", func(s: String):
 		hovered_over_label.text = s)
+	HUDSignalBus.connect("new_turn", func(t: int):
+		turn_label.text = 'Turn: {t}'.format({'t': t}))
+	HUDSignalBus.connect("new_floor", func(f: int):
+		floor_label.text = 'Floor: {f}'.format({'f': f}))
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

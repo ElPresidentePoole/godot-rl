@@ -24,5 +24,3 @@ func perform(parent: Node) -> void:
 		parent.astar.set_point_disabled(pid_at_pos_final, true)
 	await actor.play_movement_tween(world_pos_final)
 	emit_signal("action_completed", self)
-
-		# FIXME: does not update astar for mobs!
