@@ -57,16 +57,6 @@ func handle_movement() -> void:
 #func move(_astar: AStar2D, _cellmap: Node2D, dest: Vector2) -> void:
 #	await create_tween().tween_property(self, 'position', dest, 0.1).finished
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("move_north"):
-		emit_signal("new_action", MoveAction.new(self, Vector2i(0, -1)))
-	elif event.is_action_pressed("move_south"):
-		emit_signal("new_action", MoveAction.new(self, Vector2i(0, 1)))
-	elif event.is_action_pressed("move_west"):
-		emit_signal("new_action", MoveAction.new(self, Vector2i(-1, 0)))
-	elif event.is_action_pressed("move_east"):
-		emit_signal("new_action", MoveAction.new(self, Vector2i(1, 0)))
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta) -> void:
 	pass

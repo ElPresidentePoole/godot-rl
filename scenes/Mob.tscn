@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scenes/Weapon.gd" id="3_nys8a"]
 [ext_resource type="PackedScene" uid="uid://r132ed2rm57i" path="res://scenes/AI.tscn" id="4_ra4r2"]
 
-[node name="Mob" instance=ExtResource("1_xw1hy")]
+[node name="Mob" groups=["mob"] instance=ExtResource("1_xw1hy")]
 script = ExtResource("2_tgjbn")
 
 [node name="Weapon" type="Node" parent="." index="3"]

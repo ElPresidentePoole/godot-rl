@@ -21,6 +21,8 @@ func get_next_action(cellmap: CellMap) -> Action:
 			var dv: Vector2i = Vector2i(dv_x, dv_y)
 			print_debug(dv)
 			return MoveAction.new(parent, dv, true)
+		else:
+			HUDSignalBus.emit_signal('new_journal_entry', "%s drools on you harmlessly." % [parent.actor_name])
 	
 	return Action.new(parent) # Do nothing lol
 #		elif last_seen in path.slice(1, weapon.attack_range):

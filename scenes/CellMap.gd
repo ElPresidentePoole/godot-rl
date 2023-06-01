@@ -26,13 +26,15 @@ var cells_seen: Array[Vector2i] = []
 func world_to_coords(pos: Vector2) -> Vector2i:
 	# assert(pos.x % CELL_SIZE.x == 0 and pos.y % CELL_SIZE.y == 0, "{p} can't fit on the grid!".format({'p': pos}))
 	# pos.x / int(pos.x) != 1 might work?  look into this later
-	return Vector2i(pos.x / CELL_SIZE.x, pos.y / CELL_SIZE.y)
+	return Vector2i(floor(pos.x / CELL_SIZE.x), floor(pos.y / CELL_SIZE.y))
 
 func coords_to_world(pos: Vector2i) -> Vector2:
 	return Vector2(pos.x * CELL_SIZE.x, pos.y * CELL_SIZE.y)
 
 func get_nodes_at_coords(pos: Vector2i) -> Array:
-	return (mobs.get_children() + terrain.get_children()).filter(func(mob): world_to_coords(mob.position) == pos)
+	return (mobs.get_children() + terrain.get_children()).filter(func(mob):
+		var m_pos = world_to_coords(mob.position)
+		return m_pos.x == pos.x && m_pos.y == pos.y)
 
 func get_astar_point_coords() -> Dictionary: # Given that we are only working in coordinates (i.e. Vector2i) there is no reason to even consider using Vector2s
 	""" Returns a dictionary of every coordinate (Vector2i) -> astar id (int) """
@@ -257,7 +259,34 @@ func _on_mob_died(poor_schmuck: Mob) -> void:
 	var point_map: Dictionary = get_astar_point_coords()
 	var cell_died_at = point_map[schmuck_pos]
 	astar.set_point_disabled(cell_died_at, false)
-	HUDSignalBus.emit_signal("new_journal_entry", '{name} has died!'.format({'name': poor_schmuck.mob_name}))
+	HUDSignalBus.emit_signal("new_journal_entry", '{name} has died!'.format({'name': poor_schmuck.actor_name}))
+
+func _unhandled_input(event: InputEvent) -> void:
+	var delta_vec: Vector2i
+	if event.is_action_pressed("move_north"):
+		delta_vec = Vector2i(0, -1)
+	elif event.is_action_pressed("move_south"):
+		delta_vec = Vector2i(0, 1)
+	elif event.is_action_pressed("move_west"):
+		delta_vec = Vector2i(-1, 0)
+	elif event.is_action_pressed("move_east"):
+		delta_vec = Vector2i(1, 0)
+
+	if delta_vec:
+		# var astar_state: Dictionary = get_astar_point_coords()
+		var player_action: Action = MoveAction.new(player, delta_vec)
+		if player_action.possible(self):
+			process_turn(player_action)
+		else:
+			var p_coords: Vector2i = world_to_coords(player.position)
+			var potential_victims: = get_nodes_at_coords(p_coords + delta_vec).filter(func(node): return node.is_in_group('mob'))
+			if potential_victims:
+				var victim: Actor = potential_victims[0] # just grab the first one idc
+				player_action = AttackAction.new(player, victim, 5)
+				if player_action.possible(self):
+					process_turn(player_action) # TODO: re-add I can't do that! messages
+			else:
+				HUDSignalBus.emit_signal('new_journal_entry', "I can't do that!")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -265,7 +294,7 @@ func _ready() -> void:
 	generate_astar()
 
 	populate_map(bsp_tree)
-	player.connect("new_action", _on_player_new_action)
+#	player.connect("new_action", _on_player_new_action)
 	HUDSignalBus.emit_signal("new_turn", turn)
 	HUDSignalBus.emit_signal("new_floor", floor)
 
@@ -297,15 +326,7 @@ func actions_completed() -> void:
 	reveal_map_based_on_fov(player_mrpas)
 	ready_for_player_input = true
 
-func _on_player_new_action(player_action: Action) -> void:
-	if not ready_for_player_input:
-		# We aren't even done with the last turn!  Chill out, player!
-		return
-	
-	if not player_action.possible(self):
-		HUDSignalBus.emit_signal("new_journal_entry", "I can't do that!")
-		return
-		
+func process_turn(player_action: Action) -> void:
 	ready_for_player_input = false
 
 	var promise: Promise = Promise.new()
@@ -315,7 +336,7 @@ func _on_player_new_action(player_action: Action) -> void:
 	promise.add_signal(player_action.action_completed)
 	
 	for mob in mobs.get_children():
-		if mob.ai != null:
+		if mob.ai != null and mob.mortality.is_alive():
 			var ai_action: Action = mob.ai.get_next_action(self)
 			actions.append(ai_action)
 			promise.add_signal(ai_action.action_completed)
