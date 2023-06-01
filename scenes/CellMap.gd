@@ -284,7 +284,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				var victim: Actor = potential_victims[0] # just grab the first one idc
 				player_action = AttackAction.new(player, victim, 5)
 				if player_action.possible(self):
-					process_turn(player_action) # TODO: re-add I can't do that! messages
+					process_turn(player_action)
 			else:
 				HUDSignalBus.emit_signal('new_journal_entry', "I can't do that!")
 

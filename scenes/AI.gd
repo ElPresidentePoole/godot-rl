@@ -22,7 +22,8 @@ func get_next_action(cellmap: CellMap) -> Action:
 			print_debug(dv)
 			return MoveAction.new(parent, dv, true)
 		else:
-			HUDSignalBus.emit_signal('new_journal_entry', "%s drools on you harmlessly." % [parent.actor_name])
+#			HUDSignalBus.emit_signal('new_journal_entry', "%s drools on you harmlessly." % [parent.actor_name])
+			return AttackAction.new(parent, cellmap.player, 5)
 	
 	return Action.new(parent) # Do nothing lol
 #		elif last_seen in path.slice(1, weapon.attack_range):
