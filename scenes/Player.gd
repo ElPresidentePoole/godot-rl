@@ -31,6 +31,8 @@ func _ready() -> void:
 	hud.gold_label.text = build_goldlabel_text()
 	hud.inventory_label.text = build_inventoryspacelabel_text()
 	actor_name = "Player"
+	mortality.connect("hurt", func():
+		hud.hp_label.text = build_hplabel_text())
 
 func handle_movement() -> void:
 	pass

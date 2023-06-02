@@ -2,6 +2,10 @@ extends Node
 
 class_name Weapon
 
+# TODO: make "Weapon" an Item with an Attack component
+# so like, move this a layer down.
+# composition ftw!
+
 var attack_range: int
 var attack_damage: int
 var attack_verb: String
